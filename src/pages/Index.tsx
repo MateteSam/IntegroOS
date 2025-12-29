@@ -202,7 +202,7 @@ const Index = () => {
                       <Input
                         id="apiKey"
                         type="password"
-                        placeholder="AIzaSy..."
+                        placeholder="Enter key..."
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
                         className="bg-accent/5 border-border focus:border-primary/50"

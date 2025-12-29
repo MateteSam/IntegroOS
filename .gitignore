@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environments
+.env
+.env.local
+.env.*.local
+
+# Python
+venv/
+.venv/
+ENV/
+env/
+backend/venv/
+__pycache__/
+*.py[cod]
+
+# Netlify
+.netlify
