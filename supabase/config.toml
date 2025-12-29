@@ -1,0 +1,22 @@
+project_id = "oeqjmkhjdsealqdpvwkg"
+
+[functions.generate-website]
+verify_jwt = false
+
+[functions.generate-video-file]
+verify_jwt = false
+
+[functions.generate-ai-brand-asset]
+verify_jwt = false
+
+[functions.generate-brand-copy]
+verify_jwt = false
+
+[functions.extract-brand-dna]
+verify_jwt = false
+
+[functions.generate-mockup]
+verify_jwt = false
+
+[functions.share-collection]
+verify_jwt = true

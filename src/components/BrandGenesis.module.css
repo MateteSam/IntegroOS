@@ -1,0 +1,30 @@
+.colorPreview {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.colorPreview:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 1);
+}
+
+.mockupContainer {
+  aspect-ratio: 4/3;
+  background-color: rgb(243, 244, 246);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoPreview {
+  transition: transform 0.2s ease-in-out;
+}
+
+.logoPreview:hover {
+  transform: scale(1.02);
+}

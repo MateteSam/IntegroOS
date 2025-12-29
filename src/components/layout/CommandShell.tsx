@@ -1,0 +1,199 @@
+import React, { useState } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {
+    Command,
+    LayoutGrid,
+    PenTool,
+    Image as ImageIcon,
+    BarChart3,
+    Settings,
+    Search,
+    Menu,
+    Bell,
+    Sparkles,
+    ChevronRight,
+    LineChart,
+    Sun,
+    Moon
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { useProject } from '@/contexts/ProjectContext';
+import { useTheme } from '@/contexts/ThemeContext';
+
+const NavItem = ({
+    icon: Icon,
+    label,
+    path,
+    isActive,
+    isCollapsed
+}: {
+    icon: any,
+    label: string,
+    path: string,
+    isActive: boolean,
+    isCollapsed: boolean
+}) => {
+    const navigate = useNavigate();
+    return (
+        <button
+            onClick={() => navigate(path)}
+            className={cn(
+                "flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 group relative",
+                isActive
+                    ? "bg-primary/10 text-primary shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+            )}
+        >
+            <Icon className={cn("w-5 h-5", isActive && "text-primary")} />
+            {!isCollapsed && (
+                <span className={cn(
+                    "font-medium text-sm tracking-wide transition-opacity duration-300",
+                    isActive ? "font-bold" : "font-normal"
+                )}>
+                    {label}
+                </span>
+            )}
+            {isActive && !isCollapsed && (
+                <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
+            )}
+            {isCollapsed && (
+                <div className="absolute left-14 bg-[#1E293B] border border-white/10 px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                    <span className="text-xs font-bold text-white">{label}</span>
+                </div>
+            )}
+        </button>
+    );
+};
+
+export const CommandShell = () => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const { activeProject } = useProject();
+    const { mode, toggleTheme } = useTheme();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const navItems = [
+        { id: 'nexus', label: 'Command Nexus', icon: LayoutGrid, path: '/os/nexus' },
+        { id: 'content', label: 'Content Nexus', icon: PenTool, path: '/os/content' },
+        { id: 'media', label: 'Media Foundry', icon: ImageIcon, path: '/os/media' },
+        { id: 'intelligence', label: 'Central Intelligence', icon: LineChart, path: '/os/intelligence' },
+    ];
+
+    return (
+        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans selection:bg-primary/30">
+            {/* OS Sidebar */}
+            <aside
+                className={cn(
+                    "h-full glass-sovereign border-r border-border flex flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] relative z-50",
+                    isCollapsed ? "w-20" : "w-72"
+                )}
+            >
+                {/* Header */}
+                <div className="h-20 flex items-center px-6 border-b border-border">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-8 h-8 rounded-lg gradient-primary flex-shrink-0 flex items-center justify-center glow-gold">
+                            <Command className="w-4 h-4 text-primary-foreground" />
+                        </div>
+                        {!isCollapsed && (
+                            <div className="flex flex-col">
+                                <span className="font-serif font-bold text-lg tracking-tight text-foreground whitespace-nowrap">
+                                    Neural<span className="text-primary">OS</span>
+                                </span>
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                                    v2.0.4 Enterprise
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="flex-1 py-8 px-4 space-y-2 overflow-y-auto scrollbar-none">
+                    {navItems.map((item) => (
+                        <NavItem
+                            key={item.id}
+                            icon={item.icon}
+                            label={item.label}
+                            path={item.path}
+                            isActive={location.pathname.startsWith(item.path)}
+                            isCollapsed={isCollapsed}
+                        />
+                    ))}
+                </div>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-border space-y-2">
+                    <NavItem
+                        icon={Settings}
+                        label="System Config"
+                        path="/os/settings"
+                        isActive={location.pathname.startsWith('/os/settings')}
+                        isCollapsed={isCollapsed}
+                    />
+                    <button
+                        onClick={toggleTheme}
+                        className={cn(
+                            "w-full flex items-center justify-center p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-accent/10",
+                            !isCollapsed && "justify-start px-3 gap-3"
+                        )}
+                        title={`Switch to ${mode === 'dark' ? 'Light' : 'Dark'} Mode`}
+                    >
+                        {mode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                        {!isCollapsed && <span className="text-sm font-medium">Toggle Theme</span>}
+                    </button>
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="w-full flex items-center justify-center p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content Area - Background simplified to plain themed background */}
+            <main className="flex-1 flex flex-col relative overflow-hidden bg-background">
+                {/* Global Background simplified */}
+
+                {/* Top Bar / Command Strip */}
+                <header className="h-20 glass-sovereign border-b border-border flex items-center justify-between px-8 z-40">
+                    <div className="flex items-center gap-4 flex-1 max-w-2xl">
+                        {/* Spotlight Search Trigger */}
+                        <button className="flex items-center gap-3 w-full bg-accent/5 hover:bg-accent/10 border border-border rounded-xl px-4 py-2.5 transition-all text-sm text-muted-foreground group">
+                            <Search className="w-4 h-4 group-hover:text-primary transition-colors" />
+                            <span className="font-medium">Search commands, assets, or intelligence...</span>
+                            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-accent/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                                <span className="text-xs">⌘</span>K
+                            </kbd>
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 px-4 py-1.5 bg-accent/5 rounded-full border border-border">
+                            <div className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                System Optimal
+                            </span>
+                        </div>
+                        <button className="relative text-muted-foreground hover:text-primary transition-colors">
+                            <Bell className="w-5 h-5" />
+                            <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary shadow-lg ring-2 ring-background" />
+                        </button>
+                        <div className="w-8 h-8 rounded-full gradient-primary p-[1px]">
+                            <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
+                                <span className="text-xs font-bold text-primary">AD</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Workspace */}
+                <div className="flex-1 overflow-y-auto p-8 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+                    <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <Outlet />
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};

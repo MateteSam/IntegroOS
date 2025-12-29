@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#ff6b4a" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/placeholder.svg" />
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Archivo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <title>AI Brand Studio - Marketing Command Center</title>
+    <meta name="description" content="Generate professional brand assets with AI - logos, social media graphics, and marketing materials" />
+    <meta name="author" content="Lovable" />
+
+    <meta property="og:title" content="marketing-brain-command-center" />
+    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function(){
+        try {
+          if ('serviceWorker' in navigator) {
+            const isLocal = /localhost|127\.0\.0\.1/.test(location.hostname)
+            if (isLocal) {
+              navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()))
+            } else {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+              })
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </body>
+</html>

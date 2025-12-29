@@ -1,0 +1,44 @@
+{
+  "Software Development": {
+    "leading_businesses": [
+      "TechCorp Solutions",
+      "Innovate Software"
+    ],
+    "strategy_analysis": "Leading software development companies focus on agile methodologies, cloud-native architectures, and continuous integration/continuous deployment (CI/CD). They emphasize strong client communication and scalable solutions.",
+    "tactical_insights": "Competitors leverage content marketing (blogs, case studies) to showcase expertise, engage through developer communities (GitHub, Stack Overflow), and use targeted LinkedIn campaigns for lead generation. Retention is driven by excellent support and ongoing product updates.",
+    "actionable_recommendations": [
+      "Adopt agile development practices.",
+      "Invest in cloud infrastructure and DevOps.",
+      "Create technical blog content and participate in developer forums.",
+      "Offer tiered support packages for customer retention."
+    ]
+  },
+  "Health & Wellness": {
+    "leading_businesses": [
+      "Vitality Health",
+      "Wellness First"
+    ],
+    "strategy_analysis": "In the health and wellness sector, businesses prioritize building trust through expert content, community engagement, and transparent product information. Focus on holistic well-being and personalized solutions.",
+    "tactical_insights": "Competitors utilize social media influencers, educational webinars, and customer testimonials. Email marketing for personalized health tips and product updates is common. Retention strategies include subscription models and community forums.",
+    "actionable_recommendations": [
+      "Develop expert-led content (articles, videos) on health topics.",
+      "Partner with credible health influencers.",
+      "Build an online community for customers.",
+      "Offer subscription services for recurring revenue."
+    ]
+  },
+  "E-commerce": {
+    "leading_businesses": [
+      "GlobalMart Online",
+      "ShopEasy Retail"
+    ],
+    "strategy_analysis": "Successful e-commerce businesses focus on user experience, seamless checkout processes, and efficient logistics. Personalization and data-driven marketing are key.",
+    "tactical_insights": "Competitors use SEO, paid advertising (Google Ads, social media ads), email marketing for promotions, and loyalty programs. Customer reviews and social proof are heavily leveraged. Dynamic pricing and personalized product recommendations are common.",
+    "actionable_recommendations": [
+      "Optimize website for mobile and speed.",
+      "Implement personalized product recommendations.",
+      "Run targeted ad campaigns on social media and search engines.",
+      "Develop a customer loyalty program with exclusive benefits."
+    ]
+  }
+}

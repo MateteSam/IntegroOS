@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Sovereign Light Palette - Refined for Elite Precision */
+    --background: 0 0% 100%;
+    /* Pure White */
+    --foreground: 222 47% 11%;
+    /* Deep Midnight Navy */
+
+    --card: 0 0% 99%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Brand Colors: Sovereign Gold & Midnight */
+    --primary: 43 74% 49%;
+    /* #D4AF37 - Classic Gold */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 25% 27%;
+    /* Darkened for better readability */
+
+    --accent: 43 74% 49%;
+    --accent-foreground: 210 40% 98%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --electric: 212 100% 48%;
+    /* #0077FF - Electric Blue */
+    --electric-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 43 74% 49%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar Variables */
+    --sidebar-background: 210 40% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 43 74% 49%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 43 74% 49%;
+
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 60% 40%) 100%);
+    --gradient-gold: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+
+    /* Premium Shadows */
+    --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    /* Subtle Depth */
+    --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.15);
+  }
+
+  .dark {
+    /* Sovereign Dark Palette - Deep Navy, Slate, Gold */
+    --background: 222 47% 11%;
+    --foreground: 213 27% 84%;
+
+    --card: 222 47% 13%;
+    --card-foreground: 213 27% 84%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 213 27% 84%;
+
+    --primary: 43 74% 49%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 213 27% 84%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 43 74% 49%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --electric: 212 100% 48%;
+    --electric-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 43 74% 49%;
+
+    /* Sidebar Variables (Dark) */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 213 27% 84%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 32% 17%;
+    --sidebar-accent-foreground: 213 27% 84%;
+    --sidebar-border: 217 32% 17%;
+    --sidebar-ring: 43 74% 49%;
+
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 60% 40%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(222 47% 13%) 0%, hsl(222 47% 8%) 100%);
+
+    /* Premium Shadows */
+    --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Playfair Display', serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Accessibility enhancements */
+@layer utilities {
+
+  /* Premium Glassmorphism */
+  .glass {
+    @apply backdrop-blur-xl bg-card/40 border border-border/40;
+    box-shadow: var(--shadow-premium);
+  }
+
+  .glass-strong {
+    @apply backdrop-blur-2xl bg-card/60 border border-border/60;
+    box-shadow: var(--shadow-premium);
+  }
+
+  /* Sovereign Gold Glassmorphism 2.0 */
+  .glass-sovereign {
+    @apply backdrop-blur-2xl bg-white/60 dark:bg-[#0F172A]/80 border border-primary/20;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-sovereign-card {
+    @apply backdrop-blur-xl bg-card/40 border border-border/80 hover:border-primary/40 transition-all duration-300;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.03);
+  }
+
+  /* Sophisticated Hover Effects */
+  .hover-lift {
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    @apply border-primary/30;
+    box-shadow: var(--shadow-gold), var(--shadow-premium);
+  }
+
+  .hover-glow:hover {
+    @apply border-primary/50;
+    box-shadow: var(--shadow-gold);
+  }
+
+  /* Premium Typography */
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-title {
+    @apply text-balance font-bold tracking-tighter leading-[1.1];
+  }
+
+  /* Decorative Elements */
+  .ghost-text {
+    @apply absolute -z-10 text-[10rem] font-black opacity-[0.03] select-none pointer-events-none;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Noise Texture */
+  .noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: var(--noise-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* Geometric Utilities */
+  .diagonal-cut {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+
+  .diagonal-cut-reverse {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
+  }
+
+  /* Section Numbers */
+  .section-number {
+    @apply font-mono text-sm tracking-wider opacity-50;
+  }
+
+  /* Premium Typography */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-clip: text;
+    background-image: var(--gradient-primary);
+  }
+}
