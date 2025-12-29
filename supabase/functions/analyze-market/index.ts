@@ -58,7 +58,10 @@ Return ONLY valid JSON with this structure:
   "automationHotspots": ["Specific tasks for agentic deployment"]
 }`;
 
-    const GOOGLE_API_KEY = Deno.env.get('GOOGLE_API_KEY') || "AIzaSyAd1uhO5mvgV9dW6iqkEboPTUGo7L9JmZA";
+    const GOOGLE_API_KEY = Deno.env.get('GOOGLE_API_KEY');
+    if (!GOOGLE_API_KEY) {
+      throw new Error('GOOGLE_API_KEY is not set');
+    }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
