@@ -7,6 +7,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { saveGoogleKeyToLocalStorage } from "@/lib/aiClient";
 import { DashboardStats } from '@/components/DashboardStats';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const StrategicInsights = () => {
   const [insights, setInsights] = useState<any[]>([]);
@@ -89,14 +100,15 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSettingsClick = () => {
-    const existing = localStorage.getItem('GOOGLE_API_KEY') || '';
-    const key = window.prompt('Enter your Google API key for Gemini (stored locally in your browser):', existing);
-    if (!key) return;
-    saveGoogleKeyToLocalStorage(key.trim());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [apiKey, setApiKey] = useState(localStorage.getItem('GOOGLE_API_KEY') || '');
+
+  const handleSaveKey = () => {
+    saveGoogleKeyToLocalStorage(apiKey.trim());
+    setIsSettingsOpen(false);
     toast({
-      title: 'AI key saved',
-      description: 'Your Google API key was saved in this browser. You can change it anytime from Settings.',
+      title: 'Success',
+      description: 'API key saved securely in your browser.',
     });
   };
 
@@ -163,15 +175,47 @@ const Index = () => {
                 <Wand2 className="w-5 h-5 mr-3" />
                 Initialize Studio
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-border bg-card text-foreground h-14 px-8 hover:bg-accent/10 hover-glow transition-all"
-                onClick={handleSettingsClick}
-              >
-                <Settings className="w-5 h-5 mr-3" />
-                Settings
-              </Button>
+
+              <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-border bg-card text-foreground h-14 px-8 hover:bg-accent/10 hover-glow transition-all"
+                  >
+                    <Settings className="w-5 h-5 mr-3" />
+                    Settings
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] glass border-primary/20">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-serif">Neural Configuration</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Enter your Google API Key for the Gemini Intelligence Layer. Your key is stored locally and never hits our servers.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="apiKey" className="text-xs font-bold uppercase tracking-widest text-primary">
+                        Google API Key
+                      </Label>
+                      <Input
+                        id="apiKey"
+                        type="password"
+                        placeholder="AIzaSy..."
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        className="bg-accent/5 border-border focus:border-primary/50"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleSaveKey} className="gradient-primary w-full sm:w-auto font-bold">
+                      Save Credentials
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </section>
 
