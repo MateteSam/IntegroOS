@@ -3,8 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ProjectProvider } from "@/contexts/ProjectContext";
 import { CommandShell } from "@/components/layout/CommandShell";
 import Index from "./pages/Index";
 import ContentNexus from "./pages/ContentNexus";
@@ -12,8 +10,28 @@ import MediaFoundry from "./pages/MediaFoundry";
 import CentralIntelligence from "./pages/CentralIntelligence";
 import BusinessIntelligence from "@/components/BusinessIntelligence";
 import AutomationSuite from "@/components/AutomationSuite";
+import StudioWorksPipeline from "@/components/StudioWorksPipeline";
+import AgentDesignStudio from "./pages/AgentDesignStudio";
+import WorkflowBuilder from "./pages/WorkflowBuilder";
+import Settings from "./pages/Settings";
+import FaithNexusMicrosite from "./pages/FaithNexusMicrosite";
+import SovereignLauncher from "./pages/SovereignLauncher";
+import BookArchitectStudio from "./pages/BookArchitectStudio";
+import LaunchFilmStudio from "./pages/LaunchFilmStudio";
+import { RevenueCommandCenter } from "@/components/RevenueCommandCenter";
+import { LeadPipeline } from "@/components/LeadPipeline";
+import { PlatformHealthMonitor } from "@/components/PlatformHealthMonitor";
+
+import FaithNexusDashboard from "./pages/FaithNexusDashboard";
+import FaithNexusStandaloneView from "./pages/FaithNexusStandaloneView";
+import FaithNexusInvitation from "./pages/FaithNexusInvitation";
+import ProjectDashboard from "./pages/ProjectDashboard";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ProjectRegistryProvider } from "./contexts/ProjectRegistry";
+import { ProjectProvider } from "./contexts/ProjectContext";
+import { AuthGate } from "@/components/AuthGate";
+import { RestrictedRoute } from "@/components/RestrictedRoute";
 
 // Professional Font Import
 const fontLink = document.createElement('link');
@@ -23,38 +41,94 @@ document.head.appendChild(fontLink);
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ProjectProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Default Entry -> OS Nexus */}
-              <Route path="/" element={<Navigate to="/os/nexus" replace />} />
+        <Toaster />
+        <Sonner />
+        <ErrorBoundary>
+          <ProjectProvider>
+            <ProjectRegistryProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* Default Entry -> OS Nexus */}
+                  <Route path="/" element={<Navigate to="/os/nexus" replace />} />
 
-              {/* The Neural OS Shell */}
-              <Route path="/os" element={<CommandShell />}>
-                <Route path="nexus" element={<Index />} />
-                <Route path="content" element={<ErrorBoundary><ContentNexus /></ErrorBoundary>} />
-                <Route path="media" element={<MediaFoundry />} />
-                <Route path="intelligence" element={<CentralIntelligence />} />
-                <Route path="intel" element={<BusinessIntelligence />} />
-                <Route path="automation" element={<AutomationSuite />} />
-                {/* Fallback for OS routes */}
-                <Route path="*" element={<Navigate to="/os/nexus" replace />} />
-              </Route>
+                  {/* The Neural OS Shell */}
+                  <Route path="/os" element={<AuthGate><CommandShell /></AuthGate>}>
+                    <Route path="nexus" element={<Index />} />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ProjectProvider>
+                    {/* Role Restricted: Admin & Marketing only */}
+                    <Route path="content" element={
+                      <RestrictedRoute allowedRoles={['Admin', 'Marketing']}>
+                        <ErrorBoundary><ContentNexus /></ErrorBoundary>
+                      </RestrictedRoute>
+                    } />
+
+                    {/* Role Restricted: Admin & Design only */}
+                    <Route path="media" element={
+                      <RestrictedRoute allowedRoles={['Admin', 'Design']}>
+                        <MediaFoundry />
+                      </RestrictedRoute>
+                    } />
+
+                    <Route path="intelligence" element={<CentralIntelligence />} />
+
+                    {/* Admins Only */}
+                    <Route path="agents" element={
+                      <RestrictedRoute allowedRoles={['Admin']}>
+                        <AgentDesignStudio />
+                      </RestrictedRoute>
+                    } />
+
+                    <Route path="workflows" element={
+                      <RestrictedRoute allowedRoles={['Admin', 'Marketing']}>
+                        <WorkflowBuilder />
+                      </RestrictedRoute>
+                    } />
+
+                    {/* Role Restricted: Admin & Sales only */}
+                    <Route path="intel" element={
+                      <RestrictedRoute allowedRoles={['Admin', 'Sales']}>
+                        <BusinessIntelligence />
+                      </RestrictedRoute>
+                    } />
+
+                    <Route path="automation" element={<AutomationSuite />} />
+                    <Route path="studio-pipeline" element={<StudioWorksPipeline />} />
+                    <Route path="sovereign-launcher" element={<SovereignLauncher />} />
+                    <Route path="book-studio" element={<BookArchitectStudio />} />
+
+                    {/* ── Business Engine ─────────────────────────────────── */}
+                    <Route path="revenue" element={<RevenueCommandCenter />} />
+                    <Route path="leads" element={<LeadPipeline />} />
+                    <Route path="platform-health" element={<PlatformHealthMonitor />} />
+
+                    <Route path="faith-nexus" element={<FaithNexusDashboard />} />
+                    <Route path="faith-standalone" element={<FaithNexusStandaloneView />} />
+                    <Route path="launch-studio" element={<LaunchFilmStudio />} />
+                    <Route path="projects" element={<ProjectDashboard />} />
+                    <Route path="settings" element={<Settings />} />
+                    {/* Fallback for OS routes */}
+                    <Route path="*" element={<Navigate to="/os/nexus" replace />} />
+                  </Route>
+
+                  {/* Public Microsites */}
+                  <Route path="/p/faith-nexus" element={<FaithNexusMicrosite />} />
+                  <Route path="/p/talk-world" element={<SovereignLauncher />} />
+                  <Route path="/p/invitation" element={<FaithNexusInvitation />} />
+
+                  {/* Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </ProjectRegistryProvider>
+          </ProjectProvider>
+        </ErrorBoundary>
       </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+};
 
 export default App;

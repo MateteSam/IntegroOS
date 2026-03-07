@@ -14,12 +14,25 @@ import {
     ChevronRight,
     LineChart,
     Sun,
-    Moon
+    Moon,
+    Globe,
+    Home,
+    Folder,
+    Brain,
+    Rocket,
+    Film,
+    DollarSign,
+    Users2,
+    Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useProject } from '@/contexts/ProjectContext';
+import { useProjectRegistry } from '@/contexts/ProjectRegistry';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/hooks/useAuth';
+import { CommandPilot } from '@/components/CommandPilot';
+import { FocusGuard } from '@/components/FocusGuard';
+import { useEffect } from 'react';
 
 const NavItem = ({
     icon: Icon,
@@ -68,16 +81,43 @@ const NavItem = ({
 
 export const CommandShell = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const { activeProject } = useProject();
+    const { activeProject } = useProjectRegistry();
     const { mode, toggleTheme } = useTheme();
     const location = useLocation();
     const navigate = useNavigate();
 
-    const navItems = [
-        { id: 'nexus', label: 'Command Nexus', icon: LayoutGrid, path: '/os/nexus' },
-        { id: 'content', label: 'Content Nexus', icon: PenTool, path: '/os/content' },
-        { id: 'media', label: 'Media Foundry', icon: ImageIcon, path: '/os/media' },
-        { id: 'intelligence', label: 'Central Intelligence', icon: LineChart, path: '/os/intelligence' },
+    useEffect(() => {
+        const handlePilotNavigate = (e: any) => {
+            if (e.detail) navigate(e.detail);
+        };
+        window.addEventListener('pilot-navigate', handlePilotNavigate);
+        return () => window.removeEventListener('pilot-navigate', handlePilotNavigate);
+    }, [navigate]);
+
+    const { user, role } = useAuth();
+
+    const hasRole = (allowedRoles: string[]) => allowedRoles.includes(role);
+
+    const mainNav = [
+        { id: 'nexus', label: 'Nexus', icon: Home, path: '/os/nexus', roles: ['Admin', 'Marketing', 'Design', 'Sales', 'User'] },
+        { id: 'projects', label: 'Projects', icon: Folder, path: '/os/projects', roles: ['Admin', 'Marketing', 'Design', 'Sales', 'User'] },
+        { id: 'agents', label: 'Agents', icon: Brain, path: '/os/agents', roles: ['Admin'] },
+        { id: 'media', label: 'Media Foundry', icon: ImageIcon, path: '/os/media', roles: ['Admin', 'Design'] },
+        { id: 'intelligence', label: 'Intelligence Layer', icon: LineChart, path: '/os/intelligence', roles: ['Admin', 'Sales'] },
+    ];
+
+    // ── Business Engine ──────────────────────────────────────────────────────
+    const businessNav = [
+        { id: 'revenue', label: 'Revenue Tracker', icon: DollarSign, path: '/os/revenue', roles: ['Admin', 'Sales'] },
+        { id: 'leads', label: 'Lead Pipeline', icon: Users2, path: '/os/leads', roles: ['Admin', 'Sales', 'Marketing'] },
+        { id: 'platform-health', label: 'Platform Health', icon: Activity, path: '/os/platform-health', roles: ['Admin'] },
+    ];
+
+    const projectTools = [
+        { id: 'book-architect', label: 'BookArchitect-AI', icon: Sparkles, path: '/os/book-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'faith-nexus', label: 'Faith Nexus 2026', icon: Globe, path: '/os/faith-nexus', roles: ['Admin', 'Marketing'] },
+        { id: 'faith-standalone', label: 'Faith Standalone', icon: Rocket, path: '/os/faith-standalone', roles: ['Admin'] },
+        { id: 'studioworks-film', label: 'StudioWorks Film', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
     ];
 
     return (
@@ -92,16 +132,16 @@ export const CommandShell = () => {
                 {/* Header */}
                 <div className="h-20 flex items-center px-6 border-b border-border">
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-8 h-8 rounded-lg gradient-primary flex-shrink-0 flex items-center justify-center glow-gold">
-                            <Command className="w-4 h-4 text-primary-foreground" />
+                        <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden bg-white/5 border border-white/10">
+                            <img src="/images/integro-logo.png" alt="Integro OS Logo" className="w-full h-full object-contain p-1" />
                         </div>
                         {!isCollapsed && (
                             <div className="flex flex-col">
                                 <span className="font-serif font-bold text-lg tracking-tight text-foreground whitespace-nowrap">
-                                    Neural<span className="text-primary">OS</span>
+                                    Integro<span className="text-primary">OS</span>
                                 </span>
                                 <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-                                    v2.0.4 Enterprise
+                                    v3.0.0 Global
                                 </span>
                             </div>
                         )}
@@ -109,17 +149,58 @@ export const CommandShell = () => {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex-1 py-8 px-4 space-y-2 overflow-y-auto scrollbar-none">
-                    {navItems.map((item) => (
-                        <NavItem
-                            key={item.id}
-                            icon={item.icon}
-                            label={item.label}
-                            path={item.path}
-                            isActive={location.pathname.startsWith(item.path)}
-                            isCollapsed={isCollapsed}
-                        />
-                    ))}
+                <div className="flex-1 py-8 px-4 space-y-8 overflow-y-auto scrollbar-none">
+                    {/* Core OS */}
+                    <div className="space-y-2">
+                        {mainNav.filter(item => hasRole(item.roles)).map((item) => (
+                            <NavItem
+                                key={item.id}
+                                icon={item.icon}
+                                label={item.label}
+                                path={item.path}
+                                isActive={location.pathname.startsWith(item.path)}
+                                isCollapsed={isCollapsed}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Business Engine */}
+                    <div className="space-y-4">
+                        {!isCollapsed && (
+                            <h3 className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/50">Business Engine</h3>
+                        )}
+                        <div className="space-y-2">
+                            {businessNav.filter(item => hasRole(item.roles)).map((item) => (
+                                <NavItem
+                                    key={item.id}
+                                    icon={item.icon}
+                                    label={item.label}
+                                    path={item.path}
+                                    isActive={location.pathname.startsWith(item.path)}
+                                    isCollapsed={isCollapsed}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Foundational Tools */}
+                    <div className="space-y-4">
+                        {!isCollapsed && (
+                            <h3 className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">Foundational Tools</h3>
+                        )}
+                        <div className="space-y-2">
+                            {projectTools.filter(item => hasRole(item.roles)).map((tool) => (
+                                <NavItem
+                                    key={tool.id}
+                                    icon={tool.icon}
+                                    label={tool.label}
+                                    path={tool.path}
+                                    isActive={location.pathname.startsWith(tool.path)}
+                                    isCollapsed={isCollapsed}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Footer */}
@@ -151,14 +232,11 @@ export const CommandShell = () => {
                 </div>
             </aside>
 
-            {/* Main Content Area - Background simplified to plain themed background */}
+            {/* Main Content Area */}
             <main className="flex-1 flex flex-col relative overflow-hidden bg-background">
-                {/* Global Background simplified */}
-
                 {/* Top Bar / Command Strip */}
                 <header className="h-20 glass-sovereign border-b border-border flex items-center justify-between px-8 z-40">
                     <div className="flex items-center gap-4 flex-1 max-w-2xl">
-                        {/* Spotlight Search Trigger */}
                         <button className="flex items-center gap-3 w-full bg-accent/5 hover:bg-accent/10 border border-border rounded-xl px-4 py-2.5 transition-all text-sm text-muted-foreground group">
                             <Search className="w-4 h-4 group-hover:text-primary transition-colors" />
                             <span className="font-medium">Search commands, assets, or intelligence...</span>
@@ -169,6 +247,7 @@ export const CommandShell = () => {
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <FocusGuard />
                         <div className="flex items-center gap-2 px-4 py-1.5 bg-accent/5 rounded-full border border-border">
                             <div className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -194,6 +273,7 @@ export const CommandShell = () => {
                     </div>
                 </div>
             </main>
+            <CommandPilot />
         </div>
     );
 };
