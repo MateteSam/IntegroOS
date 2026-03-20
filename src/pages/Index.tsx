@@ -5,8 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, Target, Zap, TrendingUp, Sparkles, Wand2, LayoutGrid, PenTool, Image as ImageIcon, LineChart, Settings } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
-import { saveGoogleKeyToLocalStorage } from "@/lib/aiClient";
+import { saveGoogleKeyToLocalStorage } from "@/lib/ai";
 import { DashboardStats } from '@/components/DashboardStats';
+import { useProjectRegistry } from '@/contexts/ProjectRegistry';
+import { useAppStore } from '@/stores';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -99,6 +103,8 @@ const StrategicInsights = () => {
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { activeProject } = useProjectRegistry();
+  const { savedAgents } = useAppStore();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem('GOOGLE_API_KEY') || '');
@@ -114,108 +120,151 @@ const Index = () => {
 
   const modules = [
     {
-      id: 'media-foundry',
-      title: 'Media Foundry',
-      description: 'Visual synthesis, high-fidelity asset generation, and cinematic motion lab.',
-      icon: ImageIcon,
-      path: '/os/media',
+      id: 'agent-studio',
+      title: 'Agent Studio',
+      description: 'Design, deploy, and govern specialized AI agents for support, ops, and research.',
+      icon: Brain,
+      path: '/os/agents',
       color: 'from-violet-500 via-purple-500 to-pink-500',
     },
     {
-      id: 'content-nexus',
-      title: 'Content Nexus',
-      description: 'Book creation protocol, marketing asset forge, and digital presence deployment.',
-      icon: PenTool,
-      path: '/os/content',
+      id: 'campaign-craftsman',
+      title: 'Campaign Craftsman',
+      description: 'Advanced email engine and messaging delivery sub-system.',
+      icon: Target,
+      path: 'https://campaigns.integroos.io',
+      color: 'from-blue-500 via-indigo-500 to-purple-500',
+      external: true,
+    },
+    {
+      id: 'workflow-builder',
+      title: 'Workflow Automation',
+      description: 'Visual orchestration of multi-agent workflows across your entire tool-stack.',
+      icon: Zap,
+      path: '/os/workflows',
+      color: 'from-orange-500 to-red-500',
+    },
+    {
+      id: 'growth-comms',
+      title: 'Growth & Comms',
+      description: 'Automated content generation, scheduling, and performance loops.',
+      icon: TrendingUp,
+      path: '/os/media',
       color: 'from-indigo-500 via-blue-500 to-cyan-500',
     },
     {
-      id: 'strategic-intelligence',
-      title: 'Strategic Intel',
-      description: 'Market research, competitor analysis, and automated business strategy.',
+      id: 'intelligence-layer',
+      title: 'Intelligence Layer',
+      description: 'Deep market analysis and strategic reporting for leadership.',
       icon: LineChart,
       path: '/os/intelligence',
       color: 'from-emerald-500 to-blue-500',
-    },
-    {
-      id: 'automation-suite',
-      title: 'Automation Suite',
-      description: 'Intelligent business processes: CRM, lead gen, and campaign orchestration.',
-      icon: Zap,
-      path: '/os/automation',
-      color: 'from-orange-500 to-red-500',
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-white overflow-x-hidden">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10" />
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-white overflow-x-hidden relative">
+      {/* Imperial Texture & Ambient Depth */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02] mix-blend-multiply dark:mix-blend-overlay pointer-events-none noise" />
+        <div className="absolute top-[10%] right-[10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-electric/5 blur-[120px] rounded-full" />
+      </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12 space-y-20 relative z-10">
         <div className="space-y-24">
-          <section className="relative py-12 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] uppercase tracking-widest font-bold mb-8">
-              <Sparkles className="w-3 h-3" />
-              Intelligence Orchestration
-            </div>
-            <h2 className="text-5xl lg:text-7xl font-serif font-bold text-foreground mb-8 leading-[1.1]">
-              Master Your <br />
-              <span className="text-gold">Commercial Identity</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12">
-              Harness elite AI modeling to analyze, strategize, and execute
-              market-dominating campaigns with clinical precision.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                className="gradient-primary text-primary-foreground font-bold px-8 h-14 hover-lift glow-gold border-none"
-                onClick={() => navigate('/os/media')}
+          <section className="relative py-24 lg:py-40 flex items-center justify-center">
+            {/* Content Layer - Minimalist Centered Orchestration */}
+            <div className="relative z-20 text-center space-y-12 max-w-4xl px-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+                className="flex flex-col items-center space-y-8"
               >
-                <Wand2 className="w-5 h-5 mr-3" />
-                Initialize Studio
-              </Button>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] uppercase tracking-widest font-bold">
+                  <Sparkles className="w-3 h-3 animate-pulse" />
+                  {activeProject ? `Project: ${activeProject.name}` : "Intelligence Orchestration"}
+                </div>
 
-              <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-                <DialogTrigger asChild>
+                <div className="space-y-6">
+                  <h2 className="text-5xl lg:text-8xl font-serif font-bold text-foreground leading-[1.05] tracking-tight">
+                    Intelligence <br />
+                    <span className="text-gold shadow-sm">Orchestrated</span>
+                  </h2>
+                  <p className="text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+                    The AI Agent Operating System for Teams. Design, deploy, and govern
+                    coordinated AI agents across your entire organization.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-6 justify-center pt-6">
                   <Button
-                    variant="outline"
                     size="lg"
-                    className="border-border bg-card text-foreground h-14 px-8 hover:bg-accent/10 hover-glow transition-all"
+                    className="gradient-primary text-primary-foreground font-bold px-12 h-16 hover-lift glow-gold border-none rounded-full text-lg shadow-2xl"
+                    onClick={() => navigate('/os/media')}
                   >
-                    <Settings className="w-5 h-5 mr-3" />
-                    Settings
+                    <Wand2 className="w-5 h-5 mr-3" />
+                    Initialize Studio
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] glass border-primary/20">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-serif">Neural Configuration</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                      Enter your Google API Key for the Gemini Intelligence Layer. Your key is stored locally and never hits our servers.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="apiKey" className="text-xs font-bold uppercase tracking-widest text-primary">
-                        Google API Key
-                      </Label>
-                      <Input
-                        id="apiKey"
-                        type="password"
-                        placeholder="Enter key..."
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="bg-accent/5 border-border focus:border-primary/50"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button onClick={handleSaveKey} className="gradient-primary w-full sm:w-auto font-bold">
-                      Save Credentials
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+
+                  <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="border-border bg-card/50 backdrop-blur-sm text-foreground h-16 px-10 rounded-full hover:bg-accent/10 hover-glow transition-all text-lg"
+                      >
+                        <Settings className="w-5 h-5 mr-3" />
+                        Settings
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px] glass border-primary/20">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-serif">Neural Configuration</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
+                          Enter your Google API Key for the Gemini Intelligence Layer. Your key is stored locally and never hits our servers.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="apiKey" className="text-xs font-bold uppercase tracking-widest text-primary">
+                            Google API Key
+                          </Label>
+                          <Input
+                            id="apiKey"
+                            type="password"
+                            placeholder="Enter key..."
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                            className="bg-accent/5 border-border focus:border-primary/50"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button onClick={handleSaveKey} className="gradient-primary w-full sm:w-auto font-bold">
+                          Save Credentials
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </motion.div>
             </div>
           </section>
 
@@ -248,37 +297,44 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
               {modules.map((module) => {
                 const IconComponent = module.icon;
                 return (
-                  <Card
-                    key={module.id}
-                    className="group bg-card/30 border-border/50 hover:border-primary/40 transition-all duration-500 cursor-pointer overflow-hidden relative glass flex flex-col"
-                    onClick={() => navigate(module.path)}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <motion.div key={module.id} variants={itemVariants}>
+                    <Card
+                      className="group bg-card/30 border-border/50 hover:border-primary/40 transition-all duration-500 cursor-pointer overflow-hidden relative glass flex flex-col h-full"
+                      onClick={() => module.external ? window.location.href = module.path : navigate(module.path)}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <CardHeader className="p-8 relative z-10">
-                      <div className="w-12 h-12 rounded-xl bg-accent/5 border border-border flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-primary/30 transition-all duration-500">
-                        <IconComponent className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <CardHeader className="p-8 relative z-10">
+                        <div className="w-12 h-12 rounded-xl bg-accent/5 border border-border flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-primary/30 transition-all duration-500">
+                          <IconComponent className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <CardTitle className="text-xl font-serif font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                          {module.title}
+                        </CardTitle>
+                        <CardDescription className="text-muted-foreground text-sm leading-relaxed group-hover:text-foreground transition-colors transition-opacity">
+                          {module.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <div className="px-8 pb-8 mt-auto relative z-10">
+                        <div className="h-1 w-full bg-accent/10 rounded-full overflow-hidden">
+                          <div className="h-full w-0 group-hover:w-full bg-gradient-to-r from-primary to-primary/40 transition-all duration-700" />
+                        </div>
                       </div>
-                      <CardTitle className="text-xl font-serif font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
-                        {module.title}
-                      </CardTitle>
-                      <CardDescription className="text-muted-foreground text-sm leading-relaxed group-hover:text-foreground transition-colors transition-opacity">
-                        {module.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <div className="px-8 pb-8 mt-auto relative z-10">
-                      <div className="h-1 w-full bg-accent/10 rounded-full overflow-hidden">
-                        <div className="h-full w-0 group-hover:w-full bg-gradient-to-r from-primary to-primary/40 transition-all duration-700" />
-                      </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </section>
 
           <section className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-accent/5 to-transparent p-1">
@@ -286,6 +342,19 @@ const Index = () => {
               <span className="ghost-text -right-20 -bottom-10">INTEL</span>
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div className="space-y-8">
+                  {savedAgents.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] uppercase tracking-widest font-bold text-primary">Active Agents</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {savedAgents.slice(0, 5).map(agent => (
+                          <Badge key={agent.id} variant="outline" className="border-primary/20 px-3 py-1 bg-primary/5 text-primary animate-in fade-in slide-in-from-right-2">
+                            <Brain className="w-2 h-2 mr-2" />
+                            {agent.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-3xl font-serif font-bold text-foreground mb-4 flex items-center gap-3">
                       <Brain className="w-8 h-8 text-primary" />
@@ -315,16 +384,16 @@ const Index = () => {
       <footer className="border-t border-border py-12 px-6 mt-20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left space-y-2">
-            <h4 className="text-sm font-serif font-bold text-foreground tracking-widest uppercase">Sovereign Intel v2.0.4</h4>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Distributed Neural Orchestration Layer</p>
+            <h4 className="text-sm font-serif font-bold text-foreground tracking-widest uppercase">Integro OS v3.0.0 Global</h4>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Distributed AI Agent Orchestration Layer</p>
           </div>
           <div className="flex gap-8 text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Protocol</a>
-            <a href="#" className="hover:text-primary transition-colors">Encryption</a>
-            <a href="#" className="hover:text-primary transition-colors">Nodes</a>
+            <a href="#" className="hover:text-primary transition-colors">Vision</a>
+            <a href="#" className="hover:text-primary transition-colors">Governance</a>
+            <a href="#" className="hover:text-primary transition-colors">Agents</a>
           </div>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
-            © 2024 Sovereign Marketing Group
+            © 2024 Integro AI | Built in Africa for the World
           </p>
         </div>
       </footer>

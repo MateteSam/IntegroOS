@@ -27,6 +27,12 @@ import FaithNexusStandaloneView from "./pages/FaithNexusStandaloneView";
 import FaithNexusInvitation from "./pages/FaithNexusInvitation";
 import ProjectDashboard from "./pages/ProjectDashboard";
 import NotFound from "./pages/NotFound";
+import IntegroMailDashboard from "./pages/integro-mail/Index";
+import IntegroMailCampaigns from "./pages/integro-mail/Campaigns";
+import IntegroMailContacts from "./pages/integro-mail/Contacts";
+import IntegroMailTemplates from "./pages/integro-mail/Templates";
+import IntegroMailLeads from "./pages/integro-mail/Leads";
+import IntegroMailSettings from "./pages/integro-mail/Settings";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProjectRegistryProvider } from "./contexts/ProjectRegistry";
 import { ProjectProvider } from "./contexts/ProjectContext";
@@ -109,6 +115,15 @@ const App = () => {
                     <Route path="faith-standalone" element={<FaithNexusStandaloneView />} />
                     <Route path="launch-studio" element={<LaunchFilmStudio />} />
                     <Route path="projects" element={<ProjectDashboard />} />
+                    
+                    {/* ── IntegroMail Pro Engine ──────────────────────────── */}
+                    <Route path="integro-mail" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><ErrorBoundary><IntegroMailDashboard /></ErrorBoundary></RestrictedRoute>} />
+                    <Route path="integro-mail/campaigns" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><IntegroMailCampaigns /></RestrictedRoute>} />
+                    <Route path="integro-mail/contacts" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><IntegroMailContacts /></RestrictedRoute>} />
+                    <Route path="integro-mail/templates" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><IntegroMailTemplates /></RestrictedRoute>} />
+                    <Route path="integro-mail/leads" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><IntegroMailLeads /></RestrictedRoute>} />
+                    <Route path="integro-mail/settings" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><IntegroMailSettings /></RestrictedRoute>} />
+
                     <Route path="settings" element={<Settings />} />
                     {/* Fallback for OS routes */}
                     <Route path="*" element={<Navigate to="/os/nexus" replace />} />

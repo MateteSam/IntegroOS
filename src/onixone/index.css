@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Luminari Grandis - Premium Fantasy Serif */
+@font-face {
+  font-family: 'Luminari Grandis';
+  src: url('/fonts/luminari-grandis-modern-luxury-font-2025-11-26-17-14-52-utc/738 LuminariGrandis/LuminariGrandis.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Custom Scrollbar */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+    border: 1px solid rgba(15, 23, 42, 0.5);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}
+
+@layer base {
+  body {
+    @apply antialiased text-slate-300 bg-slate-950;
+  }
+}
+
+@layer components {
+  .onix-text-annotation p {
+    margin: 0;
+    padding: 0;
+  }
+}

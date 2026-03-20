@@ -38,17 +38,21 @@ export default function DraftingWorkspace() {
     };
 
     const handleImport = (fileId: string) => {
+        const file = driveFiles.find(f => f.id === fileId);
         toast({
             title: "Importing Draft",
-            description: "Parsing content and determining context...",
+            description: `Parsing "${file?.name}" and determining context...`,
         });
-        // Simulate import process
+
+        // Simulate extraction and saving to project context
         setTimeout(() => {
+            const extractedText = `Strategic Narrative for ${activeProject?.name || 'the project'}\n\nThis is the imported content from ${file?.name}. It contains the mission-critical pillars and core tactical maneuvers for the campaign.`;
+            updateBrandData({ draftContent: extractedText });
             toast({
                 title: "Import Complete",
-                description: "Draft content has been added to your Project Brain.",
+                description: "Draft content has been added to your Project Brain and is ready for Book Genesis.",
             });
-        }, 1000);
+        }, 1200);
     };
 
     const FileIcon = ({ type }: { type: string }) => {
@@ -96,7 +100,7 @@ export default function DraftingWorkspace() {
                             </div>
                             <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-900/50 border border-slate-800">
                                 <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                                <span className="text-sm text-slate-300">Save exports to "NeuralOS" folder</span>
+                                <span className="text-sm text-slate-300">Save exports to "Integro" folder</span>
                             </div>
                         </div>
                         <Button

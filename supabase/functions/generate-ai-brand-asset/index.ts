@@ -5,27 +5,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Pollinations.ai configuration
-const POLLINATIONS_BASE = "https://image.pollinations.ai/prompt";
+// Google Imagen API configuration
+const GOOGLE_PROJECT = Deno.env.get('GOOGLE_PROJECT') || 'your-project-id';
+const GOOGLE_LOCATION = Deno.env.get('GOOGLE_LOCATION') || 'us-central1';
+const GOOGLE_API_KEY = Deno.env.get('GOOGLE_API_KEY');
 
-// Model mappings for different asset types
-const MODEL_MAPPINGS: Record<string, string> = {
-  "logo": "flux",
-  "app-icon": "flux",
-  "business-card": "turbo",
-  "letterhead": "flux",
-  "poster": "flux",
-  "flyer": "turbo",
-  "social-ig": "turbo",
-  "social-fb": "turbo",
-  "social-twitter": "turbo",
-  "social-linkedin": "flux",
-  "social-pinterest": "flux",
-  "social-youtube": "flux",
-  "mockup": "flux",
-  "packaging": "flux",
-  "tshirt": "flux",
-  "email-sig": "turbo"
+const IMAGEN_ENDPOINT = `https://${GOOGLE_LOCATION}-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT}/locations/${GOOGLE_LOCATION}/publishers/google/models/imagen-3.0-generate-001:predict`;
+
+// Aspect ratio mappings for different asset types
+const ASPECT_RATIOS: Record<string, string> = {
+  "logo": "1:1",
+  "app-icon": "1:1",
+  "business-card": "16:9", // approx 1050x600
+  "letterhead": "1:1", // 2550x3300 is 1:1.29, use 4:3
+  "poster": "9:16", // 1080x1920
+  "flyer": "1:1",
+  "social-ig": "1:1",
+  "social-fb": "19:10", // approx 1200x630
+  "social-twitter": "16:9", // 1200x675
+  "social-linkedin": "4:1", // 1584x396
+  "social-pinterest": "2:3", // 1000x1500
+  "social-youtube": "16:9",
+  "mockup": "4:3",
+  "packaging": "1:1",
+  "tshirt": "1:1",
+  "email-sig": "3:1" // 600x200
 };
 
 // Asset-specific dimensions
@@ -103,7 +107,7 @@ serve(async (req) => {
 
   try {
     const { prompt, assetType, referenceImage, variationIndex } = await req.json();
-    
+
     // Input validation
     if (!prompt || typeof prompt !== 'string') {
       return new Response(
@@ -126,10 +130,14 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Generating ${assetType} variation ${variationIndex || 0} using Pollinations.ai`);
+    if (!GOOGLE_API_KEY) {
+      throw new Error("Google API key not configured");
+    }
 
-    // Determine model and dimensions
-    const model = MODEL_MAPPINGS[assetType] || "flux";
+    console.log(`Generating ${assetType} variation ${variationIndex || 0} using Google Imagen`);
+
+    // Determine aspect ratio
+    const aspectRatio = ASPECT_RATIOS[assetType] || "1:1";
     const dimensions = ASSET_DIMENSIONS[assetType] || "1024x1024";
 
     // Smart prompt engineering based on asset type
@@ -141,43 +149,130 @@ serve(async (req) => {
       console.log("Using reference image for style guidance");
     }
 
-    // Generate unique seed for meaningful variations
-    const seed = Math.floor(Math.random() * 1000000) + (variationIndex * 12345);
-
-    // Build Pollinations.ai URL
-    const params = new URLSearchParams({
-      prompt: enhancedPrompt,
-      model: model,
-      width: dimensions.split('x')[0],
-      height: dimensions.split('x')[1],
-      seed: seed.toString(),
-      nologo: "true",
-      private: "true",
-      enhance: "true",
-    });
-
-    const pollinationsUrl = `${POLLINATIONS_BASE}/${encodeURIComponent(enhancedPrompt)}?${params.toString()}`;
-
-    // Fetch from Pollinations.ai
-    const response = await fetch(pollinationsUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'image/*',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Pollinations.ai API error: ${response.status}`);
+    // Add variation to prompt for different results
+    if (variationIndex > 0) {
+      enhancedPrompt += `. Variation ${variationIndex}: slightly different composition and color scheme`;
     }
 
-    // Get the image blob
-    const imageBlob = await response.blob();
+    // Build Imagen API payload
+    const payload = {
+      instances: [
+        {
+          prompt: enhancedPrompt
+        }
+      ],
+      parameters: {
+        sampleCount: 1,
+        aspectRatio: aspectRatio,
+        negativePrompt: "blurry, low quality, distorted, ugly, deformed",
+        personGeneration: "allow_adult",
+        includeSafetyAttributes: true
+      }
+    };
 
-    // Convert to base64 for response
-    const base64Image = await blobToBase64(imageBlob);
-    const imageUrl = `data:${response.headers.get('content-type')};base64,${base64Image}`;
+    let imageUrl = '';
+    let model = '';
 
-    console.log(`Successfully generated ${assetType} using ${model} model`);
+    // Tier 1: Try Google Imagen
+    if (GOOGLE_API_KEY) {
+      try {
+        console.log('[Tier 1] Trying Google Imagen...');
+        const response = await fetch(IMAGEN_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'x-goog-api-key': GOOGLE_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.predictions?.[0]?.bytesBase64Encoded) {
+            const base64Image = result.predictions[0].bytesBase64Encoded;
+            const mimeType = result.predictions[0].mimeType || 'image/png';
+            imageUrl = `data:${mimeType};base64,${base64Image}`;
+            model = 'imagen-3.0';
+            console.log('[Tier 1] ✓ Imagen succeeded');
+          }
+        } else {
+          console.log('[Tier 1] ✗ Imagen failed:', response.status);
+        }
+      } catch (e) {
+        console.log('[Tier 1] ✗ Imagen error:', e.message);
+      }
+    }
+
+    // Tier 2: Together AI FLUX.1 (FREE)
+    const TOGETHER_API_KEY = Deno.env.get('TOGETHER_API_KEY');
+    if (!imageUrl && TOGETHER_API_KEY) {
+      try {
+        console.log('[Tier 2] Trying Together AI FLUX.1...');
+        const togetherResponse = await fetch('https://api.together.xyz/v1/images/generations', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${TOGETHER_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'black-forest-labs/FLUX.1-schnell-Free',
+            prompt: enhancedPrompt,
+            width: 1024,
+            height: 1024,
+            steps: 4,
+            n: 1,
+            response_format: 'b64_json'
+          })
+        });
+
+        if (togetherResponse.ok) {
+          const data = await togetherResponse.json();
+          if (data.data?.[0]?.b64_json) {
+            imageUrl = `data:image/png;base64,${data.data[0].b64_json}`;
+            model = 'together-flux-1';
+            console.log('[Tier 2] ✓ Together AI succeeded');
+          }
+        } else {
+          console.log('[Tier 2] ✗ Together AI failed:', togetherResponse.status);
+        }
+      } catch (e) {
+        console.log('[Tier 2] ✗ Together AI error:', e.message);
+      }
+    }
+
+    // Tier 3: Pollinations (FREE, no API key)
+    if (!imageUrl) {
+      try {
+        console.log('[Tier 3] Trying Pollinations...');
+        const shortPrompt = enhancedPrompt.slice(0, 200).replace(/[^\w\s]/g, ' ');
+        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(shortPrompt)}?width=1024&height=1024&nologo=true`;
+
+        const pollResponse = await fetch(pollinationsUrl, {
+          signal: AbortSignal.timeout(90000) // 90s timeout
+        });
+
+        if (pollResponse.ok) {
+          const contentType = pollResponse.headers.get('content-type');
+          if (contentType?.startsWith('image/')) {
+            const blob = await pollResponse.blob();
+            const base64 = await blobToBase64(blob);
+            imageUrl = `data:${contentType};base64,${base64}`;
+            model = 'pollinations';
+            console.log('[Tier 3] ✓ Pollinations succeeded');
+          }
+        } else {
+          console.log('[Tier 3] ✗ Pollinations failed:', pollResponse.status);
+        }
+      } catch (e) {
+        console.log('[Tier 3] ✗ Pollinations error:', e.message);
+      }
+    }
+
+    if (!imageUrl) {
+      throw new Error('All image generation providers failed');
+    }
+
+    console.log(`Successfully generated ${assetType} using ${model}`);
 
     return new Response(
       JSON.stringify({
@@ -185,7 +280,7 @@ serve(async (req) => {
         assetType,
         model,
         dimensions,
-        seed,
+        aspectRatio,
         prompt: enhancedPrompt
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -193,10 +288,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("Error generating brand asset:", error);
-    
+
     let errorMessage = "Failed to generate asset";
     let statusCode = 500;
-    
+
     if (error instanceof Error) {
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
@@ -208,9 +303,9 @@ serve(async (req) => {
         errorMessage = error.message;
       }
     }
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: errorMessage,
         timestamp: new Date().toISOString()
       }),

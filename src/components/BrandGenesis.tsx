@@ -19,7 +19,7 @@ import { LoadingState } from '@/components/LoadingState';
 import { useProject, defaultBrandData } from '@/contexts/ProjectContext';
 import { useBrandAI } from '@/hooks/useBrandAI';
 import { exportEditablePackage, convertBrandAssetToEditable } from '@/lib/exportEditable';
-import { generateBrandNexus } from '@/lib/aiClient';
+import { generateBrandNexus } from '@/lib/ai';
 import styles from './BrandGenesis.module.css';
 
 const INDUSTRIES = [

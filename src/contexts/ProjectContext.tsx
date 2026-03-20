@@ -40,6 +40,20 @@ export interface BrandData {
 
     // Generated Brand Assets
     generatedBrand?: any;
+    draftContent?: string;
+    micrositeConfig?: WebsiteConfig;
+}
+
+export interface WebsiteConfig {
+    id: string;
+    title: string;
+    description: string;
+    theme: 'sovereign' | 'corporate' | 'creative' | 'minimal';
+    pages: { [path: string]: any };
+    assets: { [key: string]: string };
+    lastGenerated?: Date;
+    isPublished?: boolean;
+    deploymentUrl?: string;
 }
 
 export const defaultBrandData: BrandData = {
@@ -75,20 +89,23 @@ export interface Project {
     type: 'startup' | 'campaign' | 'personal_brand';
     lastModified: Date;
     brandData: BrandData;
+    draftContent?: string;
+    websites?: WebsiteConfig[];
 }
 
 const MOCK_PROJECT: Project = {
-    id: 'genesis-01',
-    name: 'Sovereign Marketing Initiative',
+    id: 'faith-nexus-2026',
+    name: 'WCCCS 2026: Faith Nexus Global Summit',
     type: 'campaign',
     lastModified: new Date(),
     brandData: {
         ...defaultBrandData,
-        businessName: 'Sovereign Marketing',
-        mission: 'To orchestrate business intelligence',
-        industry: 'Technology',
-        brandPersonality: 'Authoritative',
-        values: ['Sovereignty', 'Intelligence', 'Orchestration']
+        businessName: 'Faith Nexus',
+        mission: 'Roots. Revelation. Renaissance.',
+        vision: 'Unifying the Global Heartbeat of faith-driven creativity.',
+        industry: 'Ministry & Media Orchestration',
+        brandPersonality: 'Sovereign / Imperial',
+        values: ['Honour', 'Innovation', 'Covenant', 'Excellence']
     }
 };
 

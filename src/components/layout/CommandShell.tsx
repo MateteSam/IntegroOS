@@ -23,7 +23,8 @@ import {
     Film,
     DollarSign,
     Users2,
-    Activity
+    Activity,
+    Mail
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -118,6 +119,7 @@ export const CommandShell = () => {
         { id: 'faith-nexus', label: 'Faith Nexus 2026', icon: Globe, path: '/os/faith-nexus', roles: ['Admin', 'Marketing'] },
         { id: 'faith-standalone', label: 'Faith Standalone', icon: Rocket, path: '/os/faith-standalone', roles: ['Admin'] },
         { id: 'studioworks-film', label: 'StudioWorks Film', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'integro-mail', label: 'IntegroMail™ Pro', icon: Mail, path: '/os/integro-mail', roles: ['Admin', 'Marketing'] },
     ];
 
     return (

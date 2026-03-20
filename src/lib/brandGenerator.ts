@@ -1,6 +1,6 @@
 // Client-side brand asset generator that creates real, usable outputs
 import type { BrandRequest, ServerResponse } from './api';
-import { generateAIImage } from './aiClient';
+import { generateAIImage } from './ai';
 import { cache } from './cacheManager';
 
 // Very small color helper
@@ -38,7 +38,7 @@ function makeSVGLogo(text: string, bg: string, fg = '#ffffff', rounded = 16, var
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="${w}" height="${h}" rx="${rounded}" fill="url(#g)"/>
-    <circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)/5}" fill="${fg}" opacity="0.08"/>
+    <circle cx="${w / 2}" cy="${h / 2}" r="${Math.min(w, h) / 5}" fill="${fg}" opacity="0.08"/>
     <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="${fg}" font-family="Inter, ui-sans-serif" font-size="${fontSize}" font-weight="700">${initials}</text>
   </svg>`;
   return svgToDataUrl(body);
@@ -57,7 +57,7 @@ export async function generateBrandAssets(payload: BrandRequest): Promise<Server
   let iconLogo: string;
 
   const cachedLogos = cache.get<{ primary: string; alt: string; icon: string }>(cacheKey);
-  
+
   if (cachedLogos) {
     primaryLogo = cachedLogos.primary;
     altLogo = cachedLogos.alt;
@@ -65,30 +65,28 @@ export async function generateBrandAssets(payload: BrandRequest): Promise<Server
   } else {
     try {
       const logoPrompt = `Create a professional, modern logo for a business called "${payload.businessName}" in the ${payload.industry} industry. Style: ${payload.brandPersonality}. The logo should be clean, memorable, and work well at different sizes. Include the business name in an elegant font.`;
-      
+
       const aiLogo = await generateAIImage(logoPrompt);
-      
+
       if (aiLogo.imageUrl) {
         primaryLogo = aiLogo.imageUrl;
         altLogo = aiLogo.imageUrl; // Use same AI logo for alt
-        
+
         // Generate icon version
         const iconPrompt = `Create a simple, iconic symbol logo for "${payload.businessName}". Just the icon/symbol, no text. Minimalist, memorable, and works as a small favicon or app icon.`;
         const aiIcon = await generateAIImage(iconPrompt);
-        iconLogo = aiIcon.imageUrl || makeSVGLogo(payload.businessName, colors.accent1, '#ffffff', 32, 'icon');
-        
+        // REBUKE FALLBACK: Do not use makeSVGLogo if icon fails, use primary logo or throw
+        iconLogo = aiIcon.imageUrl || primaryLogo;
+
         cache.set(cacheKey, { primary: primaryLogo, alt: altLogo, icon: iconLogo }, 1000 * 60 * 60); // 1 hour
       } else {
-        // Fallback to SVG logos
-        primaryLogo = makeSVGLogo(payload.businessName, colors.primary, '#ffffff', 24, 'primary');
-        altLogo = makeSVGLogo(payload.businessName, colors.secondary, '#ffffff', 24, 'alt');
-        iconLogo = makeSVGLogo(payload.businessName, colors.accent1, '#ffffff', 32, 'icon');
+        // REBUKE FALLBACK: Do not return basic shapes
+        throw new Error('AI Logo Synthesis Failed: No image returned from providers.');
       }
-    } catch (error) {
-      console.error('AI logo generation failed, using fallback:', error);
-      primaryLogo = makeSVGLogo(payload.businessName, colors.primary, '#ffffff', 24, 'primary');
-      altLogo = makeSVGLogo(payload.businessName, colors.secondary, '#ffffff', 24, 'alt');
-      iconLogo = makeSVGLogo(payload.businessName, colors.accent1, '#ffffff', 32, 'icon');
+    } catch (error: any) {
+      console.error('AI logo generation failed:', error.message);
+      // REBUKE FALLBACK: Pass the error up instead of generating placeholders
+      throw new Error(`Critical Synthesis Error: ${error.message}`);
     }
   }
 

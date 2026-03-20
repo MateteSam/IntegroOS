@@ -1,5 +1,5 @@
 // Video generation and media API integrations
-import { generateAIText } from './aiClient';
+import { generateAIText } from './ai';
 
 export type VideoAsset = {
   id: string;
@@ -42,9 +42,9 @@ export async function getPexelsVideos(query: string, count: number = 6): Promise
   try {
     const apiKey = localStorage.getItem('PEXELS_API_KEY');
     if (!apiKey) {
-      return generateFallbackVideos(query, count);
+      return [];
     }
-    
+
     const response = await fetch(
       `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${count}`,
       {
@@ -53,11 +53,11 @@ export async function getPexelsVideos(query: string, count: number = 6): Promise
         }
       }
     );
-    
+
     if (!response.ok) {
-      return generateFallbackVideos(query, count);
+      return [];
     }
-    
+
     const data = await response.json();
     return data.videos.map((video: any) => ({
       id: video.id.toString(),
@@ -70,30 +70,10 @@ export async function getPexelsVideos(query: string, count: number = 6): Promise
       tags: [query, 'professional', 'business']
     }));
   } catch (error) {
-    return generateFallbackVideos(query, count);
+    return [];
   }
 }
 
-function generateFallbackVideos(query: string, count: number): VideoAsset[] {
-  // Real video samples from various sources
-  const videoSamples = [
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
-  ];
-  
-  return Array.from({ length: count }, (_, index) => ({
-    id: `fallback-${index}`,
-    url: videoSamples[index % videoSamples.length],
-    thumbnail: `https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=225&fit=crop&crop=center`,
-    title: `${query} Video ${index + 1}`,
-    description: `Professional ${query} video content for business use`,
-    duration: 30 + (index * 15),
-    category: 'business',
-    tags: [query, 'professional', 'business', 'marketing']
-  }));
-}
 
 // AI-powered video script generation
 export async function generateVideoScript(topic: string, duration: number, style: string): Promise<string> {
@@ -106,7 +86,7 @@ export async function generateVideoScript(topic: string, duration: number, style
     - Visual cues in [brackets]
     - Timing markers
     Make it compelling and professional.`;
-    
+
     const { text } = await generateAIText(prompt);
     return text || generateFallbackScript(topic, duration, style);
   } catch (error) {
@@ -139,7 +119,7 @@ Target: Business professionals`;
 // Real video generation using AI APIs
 export async function generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo> {
   const videoId = `generated_${Date.now()}`;
-  
+
   try {
     // Try Runway ML API first
     const runwayKey = localStorage.getItem('RUNWAY_API_KEY');
@@ -177,14 +157,7 @@ export async function generateVideo(request: VideoGenerationRequest): Promise<Ge
     };
   } catch (error) {
     console.error('Video generation failed:', error);
-    return {
-      id: videoId,
-      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      thumbnail: `https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=225&fit=crop&crop=center`,
-      title: request.title,
-      status: 'completed',
-      progress: 100
-    };
+    throw new Error('Neural Synthesis failed to generate video');
   }
 }
 
@@ -245,7 +218,7 @@ async function generateDIDVideo(request: VideoGenerationRequest, apiKey: string)
           fluent: 'false',
           pad_audio: '0.0'
         },
-        source_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512&h=512&fit=crop&crop=face'
+        source_url: `data:image/svg+xml;base64,${btoa(`<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><circle cx="256" cy="200" r="100" fill="#f59e0b"/><path d="M156 400 Q256 300 356 400" stroke="#f59e0b" stroke-width="20" fill="none"/></svg>`)}`
       })
     });
 
@@ -274,7 +247,7 @@ export async function generateVoiceover(script: string, voice: string = 'profess
     if (!elevenlabsKey) {
       return generateFallbackVoiceover();
     }
-    
+
     // Placeholder for actual ElevenLabs integration
     const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/voice-id', {
       method: 'POST',
@@ -290,7 +263,7 @@ export async function generateVoiceover(script: string, voice: string = 'profess
         }
       })
     });
-    
+
     if (response.ok) {
       const audioBlob = await response.blob();
       return URL.createObjectURL(audioBlob);
@@ -298,13 +271,12 @@ export async function generateVoiceover(script: string, voice: string = 'profess
   } catch (error) {
     console.log('TTS generation failed, using fallback');
   }
-  
+
   return generateFallbackVoiceover();
 }
 
 function generateFallbackVoiceover(): string {
-  // Return a placeholder audio file URL
-  return 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
+  throw new Error('Neural Synthesis failed to generate voiceover');
 }
 
 // Video template generation
@@ -341,11 +313,11 @@ export function generateVideoTemplates(industry: string): VideoAsset[] {
       category: 'explainer'
     }
   ];
-  
+
   return templates.map((template, index) => ({
     id: `template_${index}`,
-    url: `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`,
-    thumbnail: `https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=225&fit=crop&crop=center`,
+    url: ``,
+    thumbnail: `data:image/svg+xml;base64,${btoa(`<svg width="400" height="225" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#fdfcf0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="20" fill="#000">Sovereign Video</text></svg>`)}`,
     title: template.title,
     description: template.description,
     duration: 60,
@@ -359,16 +331,16 @@ export async function downloadVideo(video: GeneratedVideo, format: string = 'mp4
   try {
     const response = await fetch(video.url);
     const blob = await response.blob();
-    
+
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
     a.download = `${video.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
-    
+
     document.body.appendChild(a);
     a.click();
-    
+
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
   } catch (error) {
@@ -394,10 +366,10 @@ export function addSubtitles(videoUrl: string, subtitles: string[]): Promise<str
 }
 
 // Helper function to save API keys
-export function saveVideoAPIKeys(keys: { 
-  pexels?: string; 
-  elevenlabs?: string; 
-  runway?: string; 
+export function saveVideoAPIKeys(keys: {
+  pexels?: string;
+  elevenlabs?: string;
+  runway?: string;
   did?: string;
 }) {
   if (keys.pexels) localStorage.setItem('PEXELS_API_KEY', keys.pexels);

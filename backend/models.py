@@ -300,7 +300,38 @@ class Optimization(db.Model):
             'expected_impact_type': self.expected_impact_type,
             'implemented': self.implemented,
             'implementation_date': self.implementation_date.isoformat() if self.implementation_date else None,
-            'results': self.results,
+            'created_at': self.created_at.isoformat()
+        }
+
+class AgentLog(db.Model):
+    """Stores persistent logging for autonomous agent workflows."""
+    
+    __tablename__ = 'agent_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    workflow_id = db.Column(db.String(100), index=True, nullable=False)
+    agent_name = db.Column(db.String(100), nullable=False)
+    action_intent = db.Column(db.String(100), nullable=False)
+    
+    # Context and result
+    input_context = db.Column(db.Text)
+    result_text = db.Column(db.Text)
+    system_action = db.Column(db.String(100))
+    status = db.Column(db.String(50), default='success') # success, error, pending
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'workflow_id': self.workflow_id,
+            'agent_name': self.agent_name,
+            'action_intent': self.action_intent,
+            'result_text': self.result_text,
+            'system_action': self.system_action,
+            'status': self.status,
+            'user_id': self.user_id,
             'created_at': self.created_at.isoformat()
         }
 

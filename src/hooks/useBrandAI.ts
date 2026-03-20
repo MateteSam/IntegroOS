@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProject } from '@/contexts/ProjectContext';
-import { generateAIText } from '@/lib/aiClient';
+import { generateAIText } from '@/lib/ai';
 
 export const useBrandAI = () => {
     const { activeProject } = useProject();

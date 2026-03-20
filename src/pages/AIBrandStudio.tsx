@@ -6,17 +6,14 @@ import { Separator } from "@/components/ui/separator";
 import {
   Loader2, Wand2, Download, Upload, X, Image as ImageIcon,
   Lightbulb, FolderOpen, Star, Trash2, Share2, Sparkles,
-  Save, Zap, Box, Layers, Settings, History, Eye, MoreHorizontal, ChevronRight, RefreshCw, Calendar, ShieldCheck
+  Save, Zap, Box, Layers, Settings, History, Eye, MoreHorizontal, ChevronRight, RefreshCw, Calendar, ShieldCheck, Brain
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { enhanceBrandPrompt } from "@/lib/ai";
+import { extractFullDNA, buildCIPrompt, saveCIProfile, loadAllCIProfiles, CIProfile } from "@/lib/CIEngine";
+import { DesignCanvas } from "@/components/DesignCanvas";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -30,11 +27,11 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { AssetComments } from "@/components/AssetComments";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { UserMenu } from "@/components/UserMenu";
-import { useAuth } from "@/hooks/useAuth";
 import { validateInput, assetGenerationSchema } from "@/lib/validation";
-import { cache } from "@/lib/cacheManager";
-import { rateLimiter, RATE_LIMITS } from "@/lib/rateLimiter";
-import { generateBrandAsset } from "@/lib/aiClient";
+import { apiClient } from "@/lib/apiClient";
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAppStore, useProject } from "@/stores";
 import { HeroSection } from "@/components/premium/HeroSection";
 import { GeometricBackground } from "@/components/premium/GeometricBackground";
 import { SectionIndicator } from "@/components/premium/SectionIndicator";
@@ -47,7 +44,7 @@ import { ScrollToTop } from "@/components/premium/ScrollToTop";
 
 type AssetType = "logo" | "business-card" | "letterhead" | "poster" | "flyer" |
   "social-ig" | "social-fb" | "social-twitter" | "social-linkedin" | "social-pinterest" | "social-youtube" |
-  "app-icon" | "email-sig" | "mockup" | "packaging" | "tshirt";
+  "app-icon" | "email-sig" | "mockup" | "packaging" | "tshirt" | "linkedin-banner";
 
 interface GeneratedAsset {
   type: AssetType;
@@ -56,6 +53,13 @@ interface GeneratedAsset {
   prompt: string;
   variation: number;
   timestamp: number;
+  textOverlay?: string; // Support for hybrid rendering
+  style?: {
+    fontFamily?: string;
+    fontSize?: string;
+    color?: string;
+    position?: 'top' | 'middle' | 'bottom';
+  };
 }
 
 interface ReferenceImage {
@@ -63,49 +67,104 @@ interface ReferenceImage {
   preview: string;
 }
 
-const PROMPT_TEMPLATES = [
-  { name: "Sovereign Tech", prompt: "Elite tech architecture, deep space black and silver, surgical minimalism, high-fidelity" },
-  { name: "Artisanal Elite", prompt: "Premium artisanal essence, charcoal and gold accents, sophisticated luxury, strategic depth" },
-  { name: "High-Performance", prompt: "Dynamic elite performance, monochromatic with platinum accents, architectural precision, bold minimalism" },
-  { name: "Cognitive Eco", prompt: "Sustainable luxury intelligence, deep forest and slate, organic geometric precision, earth-conscious elite" },
-  { name: "Clinical Luxury", prompt: "Surgical luxury brand, midnight black and pearl gold, elegant, sophisticated, high-end architectural" },
+interface StrategicPersona {
+  name: string;
+  prompt: string;
+  fontFamily: string;
+  color: string;
+  description: string;
+}
+
+const STRATEGIC_PERSONAS: StrategicPersona[] = [
+  {
+    name: "Sovereign Tech",
+    prompt: "Elite tech architecture, deep space black and silver, surgical minimalism, high-fidelity symbols, geometric precision",
+    fontFamily: "'Inter', sans-serif",
+    color: "#E2E8F0", // Cyber Silver
+    description: "Surgical, Cold, Precise"
+  },
+  {
+    name: "Artisanal Elite",
+    prompt: "Premium artisanal essence, charcoal texture background with gold leaf accents, sophisticated luxury, tactical depth",
+    fontFamily: "'Playfair Display', serif",
+    color: "#D4AF37", // Signature Gold
+    description: "Rich, Tactile, Sophisticated"
+  },
+  {
+    name: "Obsidian AI",
+    prompt: "High-fidelity AI neural filaments, deep space obsidian, glowing electric blue and gold filaments, holographic depth",
+    fontFamily: "'Outfit', sans-serif",
+    color: "#60A5FA", // Electric Blue
+    description: "Visionary, Neural, Deep"
+  },
+  {
+    name: "Monarch Minimal",
+    prompt: "Sovereign minimalist brand foundation, ivory white and champagne gold, architectural clean lines, royal simplicity",
+    fontFamily: "'Cormorant Garamond', serif",
+    color: "#C5A059", // Champagne
+    description: "Royal, Clean, Timeless"
+  },
 ];
 
 const assetCategories = {
+  digital: [
+    { id: "logo" as AssetType, label: "Logo", size: "1024x1024", desc: "Primary Identity" },
+    { id: "app-icon" as AssetType, label: "App Icon", size: "1024x1024", desc: "iOS/Android" },
+    { id: "email-sig" as AssetType, label: "Email Signature", size: "600x200", desc: "Professional Banner" },
+  ],
   social: [
-    { id: "social-ig" as AssetType, label: "Instagram Post", size: "1080x1080", desc: "Square format" },
-    { id: "social-fb" as AssetType, label: "Facebook Post", size: "1200x630", desc: "Link preview" },
-    { id: "social-twitter" as AssetType, label: "Twitter Post", size: "1200x675", desc: "Tweet image" },
-    { id: "social-linkedin" as AssetType, label: "LinkedIn Banner", size: "1584x396", desc: "Profile cover" },
-    { id: "social-pinterest" as AssetType, label: "Pinterest Pin", size: "1000x1500", desc: "Tall format" },
-    { id: "social-youtube" as AssetType, label: "YouTube Thumbnail", size: "1280x720", desc: "Video cover" },
+    { id: "social-youtube" as AssetType, label: "YouTube Thumbnail", size: "1280x720", desc: "16:9 Standard" },
+    { id: "social-ig" as AssetType, label: "Instagram Post", size: "1080x1350", desc: "4:5 Portrait" },
+    { id: "social-fb" as AssetType, label: "Facebook Post", size: "1200x630", desc: "Link Preview" },
+    { id: "social-twitter" as AssetType, label: "Twitter Post", size: "1200x675", desc: "Tweet Image" },
+    { id: "social-linkedin" as AssetType, label: "LinkedIn Banner", size: "1584x396", desc: "Profile Cover" },
+    { id: "social-pinterest" as AssetType, label: "Pinterest Pin", size: "1000x1500", desc: "9:16 Vision" },
   ],
   print: [
-    { id: "poster" as AssetType, label: "Poster", size: "18x24in", desc: "Large format" },
-    { id: "flyer" as AssetType, label: "Flyer", size: "8.5x11in", desc: "Letter size" },
-    { id: "business-card" as AssetType, label: "Business Card", size: "3.5x2in", desc: "Standard" },
-    { id: "letterhead" as AssetType, label: "Letterhead", size: "8.5x11in", desc: "Official docs" },
-  ],
-  digital: [
-    { id: "logo" as AssetType, label: "Logo", size: "1024x1024", desc: "Square icon" },
-    { id: "app-icon" as AssetType, label: "App Icon", size: "1024x1024", desc: "iOS/Android" },
-    { id: "email-sig" as AssetType, label: "Email Signature", size: "600x200", desc: "Banner" },
+    { id: "letterhead" as AssetType, label: "Letterhead", size: "2480x3508", desc: "A4 Print-Ready" },
+    { id: "flyer" as AssetType, label: "Flyer", size: "2480x3508", desc: "A4 Marketing" },
+    { id: "business-card" as AssetType, label: "Business Card", size: "1050x600", desc: "3.5x2in Print" },
+    { id: "poster" as AssetType, label: "Poster", size: "5400x7200", desc: "18x24in Large" },
   ],
   merch: [
-    { id: "mockup" as AssetType, label: "Brand Mockup", size: "1024x768", desc: "Display" },
-    { id: "packaging" as AssetType, label: "Packaging", size: "1024x1024", desc: "Box/bag" },
-    { id: "tshirt" as AssetType, label: "T-Shirt Design", size: "1024x1024", desc: "Apparel" },
+    { id: "mockup" as AssetType, label: "Brand Mockup", size: "1024x768", desc: "3D Presentation" },
+    { id: "packaging" as AssetType, label: "Packaging", size: "1024x1024", desc: "Box/Bag Unit" },
+    { id: "tshirt" as AssetType, label: "T-Shirt Design", size: "1024x1024", desc: "Apparel Print" },
   ],
 };
 
 export default function AIBrandStudio() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAppStore();
+  const { activeProject } = useProject();
+  const assetGridRef = useRef<HTMLDivElement>(null);
   const [prompt, setPrompt] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [industry, setIndustry] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<AssetType[]>(["logo"]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedAssets, setGeneratedAssets] = useState<GeneratedAsset[]>([]);
+
+  // Neural Initialization: Sync with Project Context
+  useEffect(() => {
+    if (activeProject) {
+      const { brandData } = activeProject;
+      if (brandData.businessName && !brandName) {
+        setBrandName(brandData.businessName);
+      }
+      if (brandData.industry && !industry) {
+        setIndustry(brandData.industry);
+      }
+
+      // Auto-synthesize a starter prompt if empty
+      if (!prompt && brandData.businessName) {
+        const starterPrompt = `Premier visual identity for ${brandData.businessName}, ${brandData.industry} industry. ${brandData.mission || ''}`;
+        setPrompt(starterPrompt.trim());
+      }
+    }
+  }, [activeProject, brandName, industry]);
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
-  const [activeTab, setActiveTab] = useState("social");
+  const [activePersona, setActivePersona] = useState<StrategicPersona | null>(null);
+  const [activeTab, setActiveTab] = useState("digital");
   const [variations, setVariations] = useState(3);
   const [savedAssets, setSavedAssets] = useState<any[]>([]);
   const [view, setView] = useState<'studio' | 'library' | 'analytics'>('studio');
@@ -118,6 +177,8 @@ export default function AIBrandStudio() {
   const [isRefining, setIsRefining] = useState(false);
   const [generatedCopy, setGeneratedCopy] = useState<any>(null);
   const [isGeneratingCopy, setIsGeneratingCopy] = useState(false);
+  const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false);
+  const [ciContext, setCiContext] = useState<{ logoUrl: string, palette?: string[] } | null>(null);
 
   // New features state
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -132,39 +193,56 @@ export default function AIBrandStudio() {
   const [extractedDNA, setExtractedDNA] = useState<any>(null);
   const [selectedForComments, setSelectedForComments] = useState<string | null>(null);
 
+  // CI Engine Workflow State
+  const [workflowStage, setWorkflowStage] = useState<'logo-select' | 'ci-review' | 'generate' | 'edit'>('logo-select');
+  const [activeCIProfile, setActiveCIProfile] = useState<CIProfile | null>(null);
+  const [savedCIProfiles, setSavedCIProfiles] = useState<CIProfile[]>([]);
+  const [editCanvasOpen, setEditCanvasOpen] = useState(false);
+  const [canvasTargetAsset, setCanvasTargetAsset] = useState<GeneratedAsset | null>(null);
+
   const heroRef = useRef<HTMLDivElement>(null);
-  const assetGridRef = useRef<HTMLDivElement>(null);
+  // const assetGridRef = useRef<HTMLDivElement>(null); // This was duplicated, removed the second one.
 
   useEffect(() => {
     loadSavedAssets();
+    // Load saved CI profiles on mount
+    const profiles = loadAllCIProfiles();
+    setSavedCIProfiles(prev => {
+      if (prev.length === 0 && profiles.length > 0) {
+        setActiveCIProfile(profiles[0]); // Default to most recent
+        setWorkflowStage('generate'); // Skip to generate if we have a profile
+      }
+      return profiles;
+    });
   }, []);
+
+  // Open the Design Canvas with a specific asset
+  const handleOpenEditCanvas = (asset: GeneratedAsset) => {
+    setCanvasTargetAsset(asset);
+    setEditCanvasOpen(true);
+  };
+
+  // Extract CI from a logo image
+  const handleExtractCI = async (logoDataUrl: string) => {
+    toast.info('Extracting Brand DNA from logo...');
+    try {
+      const profile = await extractFullDNA(logoDataUrl, prompt || 'My Brand');
+      saveCIProfile(profile);
+      setActiveCIProfile(profile);
+      setSavedCIProfiles(prev => [profile, ...prev]);
+      setWorkflowStage('ci-review');
+      toast.success('Brand DNA extracted! Review below.');
+    } catch (e) {
+      toast.error('DNA extraction failed.');
+    }
+  };
 
   const loadSavedAssets = async () => {
     if (!user) return;
 
     try {
-      const cacheKey = `saved-assets-${user.id}`;
-      const cached = cache.get<any[]>(cacheKey);
-
-      if (cached) {
-        setSavedAssets(cached);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("user_designs")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("asset_type", "ai-brand-asset")
-        .order("created_at", { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-
-      if (data) {
-        setSavedAssets(data);
-        cache.set(cacheKey, data, 1000 * 60 * 5);
-      }
+      const data = await apiClient.loadUserDesigns(user.id, 20);
+      setSavedAssets(data.filter(item => item.asset_type === "ai-brand-asset"));
     } catch (error) {
       console.error("Error loading saved assets:", error);
       toast.error("Failed to load saved assets");
@@ -205,34 +283,56 @@ export default function AIBrandStudio() {
     const assetConfig = allAssets.find((a) => a.id === assetType);
 
     const variations = [
-      "clean, professional, corporate style",
-      "bold, creative, artistic approach",
-      "minimal, elegant, sophisticated design"
+      "clean, professional, corporate style with surgical minimalism",
+      "bold, creative, avant-garde artistic approach with vibrant depth",
+      "minimal, elegant, sophisticated design with architectural precision",
+      "high-tech futuristic aesthetic with neon accents and dark obsidian",
+      "organic, soft, premium luxury feel with tactile textures",
+      "monochromatic high-contrast masterwork, cinematic lighting",
+      "layered geometric complexity, holographic interference patterns",
+      "vanta-black depth with gold-leaf surgical precision"
     ];
 
-    const styleGuide = variations[variationIndex % 3];
+    const styleGuide = variations[variationIndex % variations.length];
+    const salt = ` [Seed: ${Math.floor(Math.random() * 999999)}]`;
 
-    return `${basePrompt}. ${styleGuide}. Professional ${assetConfig?.label.toLowerCase()} design optimized for ${assetConfig?.size}. High quality, modern aesthetic, print-ready.`;
+    let brandContext = "";
+    if (ciContext) {
+      brandContext = ` Following Corporate Identity with logo ${ciContext.logoUrl}. Palette: ${ciContext.palette?.join(', ') || 'Obsidian and Gold'}.`;
+    }
+
+    return `${basePrompt}. ${styleGuide}.${salt} Professional ${assetConfig?.label.toLowerCase()} design optimized for ${assetConfig?.size}.${brandContext} High quality, practical, and print-ready.`;
   };
 
-  const handleGenerate = async () => {
-    if (!isAuthenticated) {
-      toast.error("Please sign in to generate assets");
-      return;
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) return;
+    setIsEnhancingPrompt(true);
+    try {
+      const enhanced = await enhanceBrandPrompt(prompt);
+      setPrompt(enhanced);
+      toast.success("Prompt strategically enhanced!");
+    } catch (error) {
+      toast.error("Failed to enhance prompt");
+    } finally {
+      setIsEnhancingPrompt(false);
     }
+  };
 
-    if (!rateLimiter.check('ai-generation', RATE_LIMITS.AI_GENERATION)) {
-      const waitTime = Math.ceil(rateLimiter.getWaitTime('ai-generation', RATE_LIMITS.AI_GENERATION) / 1000);
-      toast.error(`Rate limit reached. Please wait ${waitTime} seconds before generating again.`);
-      return;
-    }
+  const handleGenerateFullKit = async () => {
+    handleGenerate(['logo', 'business-card', 'linkedin-banner']);
+  };
+
+  const handleGenerate = async (typesOverride?: AssetType[]) => {
+    // Bypass authentication for now
 
     if (!prompt.trim()) {
       toast.error("Please enter a description for your brand assets");
       return;
     }
 
-    if (selectedTypes.length === 0) {
+    const targetTypes = typesOverride || selectedTypes;
+
+    if (targetTypes.length === 0) {
       toast.error("Please select at least one asset type");
       return;
     }
@@ -240,12 +340,25 @@ export default function AIBrandStudio() {
     setIsGenerating(true);
     setGeneratedAssets([]);
 
+    let currentPrompt = prompt;
+    if (currentPrompt.length < 20) {
+      setIsEnhancingPrompt(true);
+      try {
+        currentPrompt = await enhanceBrandPrompt(currentPrompt);
+        setPrompt(currentPrompt);
+      } catch (e) {
+        console.warn('Auto-enhancement failed, using base prompt');
+      } finally {
+        setIsEnhancingPrompt(false);
+      }
+    }
+
     try {
       const allPromises = [];
 
-      for (const type of selectedTypes) {
+      for (const type of targetTypes) {
         for (let i = 0; i < variations; i++) {
-          const enhancedPrompt = enhancePromptWithContext(prompt, type, i);
+          const enhancedPrompt = enhancePromptWithContext(currentPrompt, type, i);
 
           const validation = validateInput(assetGenerationSchema, {
             prompt: enhancedPrompt,
@@ -255,14 +368,15 @@ export default function AIBrandStudio() {
           });
 
           if (!validation.success) {
-            console.error('Validation failed, skipping asset');
+            console.error('Validation failed, skipping asset:', (validation as any).error);
+            toast.error(`Invalid Input: ${(validation as any).error}`);
             continue;
           }
 
           const validatedData = validation.data;
 
           allPromises.push(
-            generateBrandAsset(validatedData).then((data) => {
+            apiClient.generateBrandAsset({ ...validatedData, ciContext }).then((data) => {
               return { type, variation: i, ...data };
             })
           );
@@ -270,23 +384,44 @@ export default function AIBrandStudio() {
       }
 
       const batchSize = 3;
+      let successCount = 0;
+
+      const finalCollection: GeneratedAsset[] = [];
+
       for (let i = 0; i < allPromises.length; i += batchSize) {
         const batch = allPromises.slice(i, i + batchSize);
         const results = await Promise.all(batch);
 
         results.forEach((result) => {
           if (result?.imageUrl) {
-            setGeneratedAssets((prev) => [
-              ...prev,
-              {
-                type: result.type,
-                url: result.imageUrl,
-                fallbackUrl: result.fallbackUrl,
-                prompt: result.prompt || prompt,
-                variation: result.variation,
-                timestamp: Date.now()
-              },
-            ]);
+            successCount++;
+            const newAsset: GeneratedAsset = {
+              type: result.type,
+              url: result.imageUrl,
+              fallbackUrl: result.fallbackUrl,
+              prompt: result.prompt || prompt,
+              variation: result.variation,
+              timestamp: Date.now(),
+              // Hybrid Logic: Add text overlay for logos and branded assets
+              textOverlay: (result.type === 'logo' || result.type === 'business-card') ?
+                (prompt.length > 25 ? prompt.split(' ').join('\n') : prompt) : undefined,
+              style: {
+                position: result.type === 'logo' ? 'middle' : 'bottom',
+                fontFamily: activePersona?.fontFamily || "'Playfair Display', serif",
+                color: activePersona?.color || '#D4AF37'
+              }
+            };
+            finalCollection.push(newAsset);
+            setGeneratedAssets((prev) => [...prev, newAsset]);
+
+            // Show which method was used
+            if (result.method === 'imagen') {
+              console.log(`✓ Asset ${successCount} via Imagen (Primary)`);
+            } else if (result.method === 'gemini-vision') {
+              console.log(`✓ Asset ${successCount} via Gemini Vision (Fallback)`);
+            } else if (result.method === 'spec') {
+              console.log(`✓ Asset ${successCount} via Spec Renderer (Fallback)`);
+            }
           }
         });
 
@@ -295,8 +430,18 @@ export default function AIBrandStudio() {
         }
       }
 
-      toast.success(`Generated ${selectedTypes.length * variations} brand assets!`);
-      await saveToLibrary();
+      if (successCount > 0) {
+        toast.success(`Generated ${successCount} brand assets successfully!`);
+        // Immediate persistence to Library using the local collection to avoid stale state
+        await saveToLibraryDirectly(finalCollection);
+      } else if (allPromises.length > 0) {
+        // Show specific error from the first failed result if available
+        const firstResult = await allPromises[0];
+        const firstError = firstResult?.text || "Unknown Error";
+        toast.error(`Synthesis Failed: ${firstError}. Please check your internet connection or API key.`);
+      } else {
+        toast.error("Initialization Failed: Input validation failed or no assets selected.");
+      }
     } catch (error: any) {
       console.error("Generation error:", error);
       if (error.message?.includes("Rate limit")) {
@@ -311,37 +456,35 @@ export default function AIBrandStudio() {
     }
   };
 
-  const saveToLibrary = async () => {
-    if (!user || generatedAssets.length === 0) return;
+  const saveToLibraryDirectly = async (assetsToSave: GeneratedAsset[]) => {
+    if (!user || assetsToSave.length === 0) return;
 
     try {
       const { error } = await supabase.from("user_designs").insert([{
         user_id: user.id,
         asset_type: "ai-brand-asset",
-        title: `${prompt.slice(0, 50)}...`,
+        title: `${prompt.substring(0, 50)}...`,
         data: {
           prompt,
-          assets: generatedAssets.map(a => ({
+          assets: assetsToSave.map(a => ({
             type: a.type,
             url: a.url,
-            fallbackUrl: a.fallbackUrl, // Ensure fallbackUrl is saved
+            fallbackUrl: a.fallbackUrl,
             prompt: a.prompt,
             variation: a.variation
           })),
           referenceImages: referenceImages.length,
+          ciContext: ciContext,
         } as any,
       }]);
 
       if (!error) {
-        cache.delete(`saved-assets-${user.id}`);
         loadSavedAssets();
-        toast.success("Saved to library");
       } else {
         throw error;
       }
     } catch (error) {
-      console.error("Save to library error:", error);
-      toast.error("Failed to save to library");
+      console.error("Auto-save error:", error);
     }
   };
 
@@ -397,7 +540,6 @@ export default function AIBrandStudio() {
     try {
       const { error } = await supabase.from("user_designs").delete().eq("id", id);
       if (error) throw error;
-      cache.delete(`saved-assets-${user.id}`);
       loadSavedAssets();
       toast.success("Deleted from library");
     } catch (error) {
@@ -421,8 +563,21 @@ export default function AIBrandStudio() {
           Visual <span className="text-primary">Brand Architecture</span>
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto font-light">
-          Generate professional brand assets and visual identity systems with AI.
+          Generate professional brand assets and visual identity systems.
         </p>
+
+        {ciContext && (
+          <div className="mt-4 flex flex-col items-center gap-2 animate-in fade-in slide-in-from-top-4">
+            <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary px-4 py-1.5 flex items-center gap-2">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="text-[10px] tracking-widest uppercase">Active Corporate Identity</span>
+            </Badge>
+            <div className="text-[10px] text-muted-foreground flex items-center gap-2">
+              <span>Foundation established with selected logo</span>
+              <Button variant="link" size="sm" onClick={() => setCiContext(null)} className="h-auto p-0 text-[10px] text-destructive">Reset CI</Button>
+            </div>
+          </div>
+        )}
 
         {/* View Toggle */}
         <div className="flex justify-center mt-6">
@@ -455,126 +610,249 @@ export default function AIBrandStudio() {
         {view === 'studio' && (
           <>
             <div className="space-y-8" ref={assetGridRef}>
-              <div className="lg:col-span-2 space-y-12">
-                {/* Prompt Builder */}
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Visual Specification</label>
-                    <div className="flex flex-wrap gap-2">
-                      {PROMPT_TEMPLATES.map((template) => (
-                        <Badge
-                          key={template.name}
-                          variant="outline"
-                          className="cursor-pointer border-border bg-accent/5 hover:bg-primary/20 hover:border-primary/50 text-muted-foreground hover:text-foreground transition-all px-3 py-1 text-[10px] uppercase tracking-wider"
-                          onClick={() => setPrompt(template.prompt)}
-                        >
-                          {template.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid lg:grid-cols-12 gap-10"
+              >
+                {/* Left Column: Blueprinting */}
+                <div className="lg:col-span-5 space-y-8">
+                  {/* Agent Configuration */}
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Select Agent Blueprint</label>
+                      <div className="flex flex-wrap gap-2">
+                        {STRATEGIC_PERSONAS.map((template) => (
+                          <Badge
+                            key={template.name}
+                            variant="outline"
+                            className={cn(
+                              "cursor-pointer border-border px-3 py-1 text-[10px] uppercase tracking-wider transition-all",
+                              activePersona?.name === template.name
+                                ? "bg-primary text-primary-foreground border-none scale-105"
+                                : "bg-accent/5 hover:bg-primary/20 hover:border-primary/50 text-muted-foreground hover:text-foreground"
+                            )}
+                            onClick={() => {
+                              setPrompt(template.prompt);
+                              setActivePersona(template);
+                              toast.success(`Agent Blueprint: ${template.name} Active`);
+                            }}
+                          >
+                            {template.name}
+                          </Badge>
+                        ))}
 
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-1000 group-hover:duration-200" />
-                    <Card className="relative bg-card/50 border-border/50 glass p-0 overflow-hidden">
-                      <PromptBuilderPanel
-                        prompt={prompt}
-                        onPromptChange={setPrompt}
-                        placeholder="Describe your brand vision, style, colors, and personality..."
-                      />
-                    </Card>
-                  </div>
-                </div>
+                        <div className="h-6 w-px bg-white/10 mx-2" />
 
-                {/* Reference Media */}
-                <div className="space-y-6">
-                  <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Aesthetic Reference</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {referenceImages.map((img, i) => (
-                      <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-border group hover:border-primary/40 transition-all">
-                        <img src={img.preview} className="w-full h-full object-cover" alt={`Reference ${i + 1}`} />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeImage(i)}
+                        <button
+                          onClick={handleGenerateFullKit}
+                          disabled={isGenerating || !prompt.trim()}
+                          className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full text-[10px] font-bold text-black shadow-lg shadow-amber-500/20 hover:scale-105 transition-all disabled:opacity-50"
                         >
-                          <X className="w-3 h-3" />
-                        </Button>
+                          <Sparkles className="w-3 h-3 animate-pulse" />
+                          ORCHESTRATE FULL BRAND IDENTITY
+                        </button>
                       </div>
-                    ))}
-                    {referenceImages.length < 4 && (
-                      <label className="aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-accent/5 hover:bg-accent/10 hover:border-primary/20 cursor-pointer transition-all">
-                        <Upload className="w-6 h-6 text-muted-foreground" />
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">Add Media</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                          multiple
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-12">
-                {/* Controls */}
-                <div className="bg-card/30 border border-border/50 glass rounded-3xl p-8 space-y-10">
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Asset Output</span>
-                      <span className="text-[10px] font-mono text-primary">{variations} Variations</span>
                     </div>
-                    <Slider
-                      value={[variations]}
-                      onValueChange={([v]) => setVariations(v)}
-                      min={1}
-                      max={5}
-                      step={1}
-                      className="py-4"
-                    />
+
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-1000 group-hover:duration-200" />
+                      <Card className="relative bg-card/50 border-border/50 glass p-0 overflow-hidden">
+                        <div className="relative">
+                          <PromptBuilderPanel
+                            prompt={prompt}
+                            onPromptChange={setPrompt}
+                            placeholder="Define the agent's objective and brand personality..."
+                          />
+                          <Button
+                            size="sm"
+                            disabled={isEnhancingPrompt || !prompt.trim()}
+                            onClick={handleEnhancePrompt}
+                            className="absolute bottom-4 right-4 bg-primary/20 hover:bg-primary/40 border border-primary/30 text-primary text-[10px] uppercase font-bold tracking-widest h-9 rounded-xl transition-all"
+                          >
+                            {isEnhancingPrompt ? (
+                              <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                            ) : (
+                              <Zap className="h-3 w-3 mr-2" />
+                            )}
+                            Neural Refinement
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
                   </div>
 
+                  {/* Reference Media */}
                   <div className="space-y-6">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Primary Vector</label>
-                    <AssetTypeSelector
-                      selectedType={selectedTypes[0] || "logo"}
-                      onTypeSelect={(type) => setSelectedTypes([type as AssetType])}
-                    />
+                    <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Aesthetic Reference</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {referenceImages.map((img, i) => (
+                        <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-border group hover:border-primary/40 transition-all">
+                          <img src={img.preview} className="w-full h-full object-cover" alt={`Reference ${i + 1}`} />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeImage(i)}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      {referenceImages.length < 4 && (
+                        <label className="aspect-square flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-accent/5 hover:bg-accent/10 hover:border-primary/20 cursor-pointer transition-all">
+                          <Upload className="w-6 h-6 text-muted-foreground" />
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">Add Media</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                            multiple
+                          />
+                        </label>
+                      )}
+                    </div>
                   </div>
+                </div>
 
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim() || selectedTypes.length === 0}
-                    className="w-full h-16 rounded-2xl gradient-primary text-primary-foreground font-bold text-lg hover-lift glow-gold border-none"
+                {/* Right Column: Asset Synthesis */}
+                <div className="lg:col-span-7">
+                  <div className="space-y-12">
+                    {/* Controls */}
+                    <div className="bg-card/30 border border-border/50 glass rounded-3xl p-8 space-y-10">
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Asset Output</span>
+                          <span className="text-[10px] font-mono text-primary">{variations} Variations</span>
+                        </div>
+                        <Slider
+                          value={[variations]}
+                          onValueChange={([v]) => setVariations(v)}
+                          min={1}
+                          max={5}
+                          step={1}
+                          className="py-4"
+                        />
+                      </div>
+
+                      <div className="space-y-6">
+                        <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Asset Category</label>
+                        <Tabs value={activeTab} onValueChange={(val) => {
+                          setActiveTab(val);
+                          // Auto-select first type in category to ensure "tab awareness"
+                          const firstType = assetCategories[val as keyof typeof assetCategories][0].id;
+                          setSelectedTypes([firstType]);
+                        }} className="w-full">
+                          <TabsList className="w-full grid grid-cols-4 bg-background border border-border/50">
+                            <TabsTrigger value="social" className="text-[10px] uppercase">Social</TabsTrigger>
+                            <TabsTrigger value="print" className="text-[10px] uppercase">Print</TabsTrigger>
+                            <TabsTrigger value="digital" className="text-[10px] uppercase">Digital</TabsTrigger>
+                            <TabsTrigger value="merch" className="text-[10px] uppercase">Merch</TabsTrigger>
+                          </TabsList>
+
+                          {Object.entries(assetCategories).map(([category, types]) => (
+                            <TabsContent key={category} value={category} className="mt-4 space-y-4">
+                              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Target Format</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {types.map((type) => (
+                                  <div
+                                    key={type.id}
+                                    onClick={() => setSelectedTypes([type.id])}
+                                    className={cn(
+                                      "cursor-pointer p-3 rounded-xl border transition-all flex items-center justify-between",
+                                      selectedTypes.includes(type.id)
+                                        ? "bg-primary/10 border-primary shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                                        : "bg-card/50 border-border hover:border-primary/50"
+                                    )}
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className={cn(
+                                        "text-xs font-bold",
+                                        selectedTypes.includes(type.id) ? "text-primary" : "text-foreground"
+                                      )}>{type.label}</span>
+                                      <span className="text-[10px] text-muted-foreground">{type.size}</span>
+                                    </div>
+                                    {selectedTypes.includes(type.id) && <Sparkles className="w-3 h-3 text-primary" />}
+                                  </div>
+                                ))}
+                              </div>
+                            </TabsContent>
+                          ))}
+                        </Tabs>
+                      </div>
+
+                      <Button
+                        size="lg"
+                        className="w-full h-16 gradient-primary text-primary-foreground font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.3)] disabled:opacity-50"
+                        onClick={() => handleGenerate()}
+                        disabled={isGenerating || !prompt.trim() || selectedTypes.length === 0}
+                      >
+                        {isGenerating ? (
+                          <div className="flex items-center gap-3">
+                            <Sparkles className="w-5 h-5 animate-spin" />
+                            Orchestrating...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-3">
+                            <Zap className="w-5 h-5 group-hover:animate-pulse" />
+                            ORCHESTRATE FULL BRAND IDENTITY
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className="p-8 rounded-3xl border border-border bg-accent/5 space-y-4">
+                      <div className="flex items-center gap-3 text-primary">
+                        <Lightbulb className="w-5 h-5" />
+                        <h4 className="text-xs uppercase tracking-widest font-bold">Strategic Tip</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Specify exact HEX codes or material textures (e.g. "Brushed Gold", "Tactile Matte") for more precise creative outputs.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <AnimatePresence mode="wait">
+                {!generatedAssets.length && !isGenerating ? (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    className="h-full min-h-[600px] rounded-3xl border-2 border-dashed border-primary/10 bg-accent/5 flex flex-col items-center justify-center p-12 text-center space-y-8 group"
                   >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-6 h-6 animate-spin mr-3" />
-                        Orchestrating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-6 h-6 mr-3" />
-                        Initialize Studio
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="p-8 rounded-3xl border border-border bg-accent/5 space-y-4">
-                  <div className="flex items-center gap-3 text-primary">
-                    <Lightbulb className="w-5 h-5" />
-                    <h4 className="text-xs uppercase tracking-widest font-bold">Strategic Tip</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Specify exact HEX codes or material textures (e.g. "Brushed Gold", "Tactile Matte") for more precise creative outputs.
-                  </p>
-                </div>
-              </div>
+                    <div className="w-32 h-32 rounded-full border border-primary/20 flex items-center justify-center relative bg-primary/5">
+                      <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping opacity-20" />
+                      <div className="absolute inset-4 rounded-full border border-primary/20 animate-spin-slow" />
+                      <Brain className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-serif font-bold text-foreground">Growth Agent Idle</h3>
+                      <p className="text-muted-foreground max-w-sm">Awaiting neural instructions to synthesize your multi-channel deployment kit.</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="border-primary/20 hover:bg-primary/5 group"
+                      onClick={() => handleGenerate()}
+                    >
+                      <Zap className="w-4 h-4 mr-2 text-primary" />
+                      Trigger Agent Deployment
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="assets"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-8"
+                  >
+                    {/* Generation UI ... (rest of the file handles asset display) */}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Results Section */}
@@ -601,7 +879,7 @@ export default function AIBrandStudio() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={saveToLibrary}
+                          onClick={() => saveToLibraryDirectly(generatedAssets)}
                           className="border-border bg-card text-xs text-foreground px-6 h-10 hover:bg-accent/10 transition-all rounded-xl"
                         >
                           <Save className="w-4 h-4 mr-2" />
@@ -616,7 +894,30 @@ export default function AIBrandStudio() {
                     onPreview={handlePreview}
                     onDownload={downloadAsset}
                     onFavorite={toggleFavorite}
+                    onEdit={(asset) => handleOpenEditCanvas(asset as any)}
                     favorites={favorites}
+                    renderExtraActions={(asset) => (
+                      asset.type === 'logo' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCiContext({ logoUrl: asset.url });
+                            toast.success("Corporate Identity established!");
+                          }}
+                          className={cn(
+                            "w-full mt-2 text-[10px] uppercase font-bold tracking-widest rounded-xl h-10 transition-all",
+                            ciContext?.logoUrl === asset.url
+                              ? "bg-primary text-primary-foreground border-none"
+                              : "bg-background/20 backdrop-blur-md border-border/50 hover:bg-primary/20 hover:text-primary hover:border-primary/40"
+                          )}
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 mr-2" />
+                          {ciContext?.logoUrl === asset.url ? "Primary Identity" : "Establish Identity"}
+                        </Button>
+                      )
+                    )}
                   />
                 </div>
               </section>
@@ -722,6 +1023,20 @@ export default function AIBrandStudio() {
           onNavigate={(index) => {
             setLightboxIndex(index);
             setSelectedAsset(generatedAssets[index]);
+          }}
+        />
+      )}
+
+      {/* Design Canvas Modal */}
+      {editCanvasOpen && canvasTargetAsset && (
+        <DesignCanvas
+          initialImageUrl={canvasTargetAsset.url}
+          textOverlay={canvasTargetAsset.textOverlay}
+          style={canvasTargetAsset.style}
+          onClose={() => setEditCanvasOpen(false)}
+          onSave={(dataUrl) => {
+            toast.success('Asset saved from canvas!');
+            // Optionally update the asset in state here
           }}
         />
       )}

@@ -1,5 +1,5 @@
 // Website generation and deployment API integrations
-import { generateAIText } from './aiClient';
+import { generateAIText } from './ai';
 
 export type WebsiteTemplate = {
   id: string;
@@ -78,7 +78,7 @@ export function getWebsiteTemplates(industry: string): WebsiteTemplate[] {
     id: `template_${index}`,
     name: template.name,
     description: template.description,
-    thumbnail: `https://source.unsplash.com/600x400/?website,${template.category}`,
+    thumbnail: `data:image/svg+xml;base64,${btoa(`<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#fdfcf0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="24" fill="#000">Sovereign Template</text></svg>`)}`,
     category: template.category,
     features: template.features,
     htmlTemplate: generateHTMLTemplate(template.name, template.features),
@@ -90,7 +90,7 @@ export function getWebsiteTemplates(industry: string): WebsiteTemplate[] {
 // AI-powered website generation
 export async function generateWebsite(request: WebsiteGenerationRequest): Promise<GeneratedWebsite> {
   const websiteId = `website_${Date.now()}`;
-  
+
   try {
     // Generate website structure using AI
     const structurePrompt = `Create a website structure for "${request.businessName}" in the ${request.industry} industry.
@@ -104,7 +104,7 @@ export async function generateWebsite(request: WebsiteGenerationRequest): Promis
     - content outline for each page
     - recommended sections
     Keep it professional and SEO-optimized.`;
-    
+
     const { text: structureText } = await generateAIText(structurePrompt);
     let structure = {};
     try {
@@ -112,7 +112,7 @@ export async function generateWebsite(request: WebsiteGenerationRequest): Promis
     } catch {
       structure = { sitemap: request.pages, navigation: request.pages };
     }
-    
+
     const website: GeneratedWebsite = {
       id: websiteId,
       name: request.businessName,
@@ -123,7 +123,7 @@ export async function generateWebsite(request: WebsiteGenerationRequest): Promis
       status: 'generating',
       progress: 20
     };
-    
+
     // Generate individual pages
     for (const pageName of request.pages) {
       const pagePrompt = `Generate HTML content for the ${pageName} page of ${request.businessName}.
@@ -138,12 +138,12 @@ export async function generateWebsite(request: WebsiteGenerationRequest): Promis
       - Call-to-action elements
       
       Return only the HTML content for the main section.`;
-      
+
       const { text: pageHTML } = await generateAIText(pagePrompt);
       website.pages[pageName] = pageHTML || generateFallbackPage(pageName, request);
       website.progress += Math.floor(60 / request.pages.length);
     }
-    
+
     // Generate CSS
     const cssPrompt = `Generate CSS for ${request.businessName} website.
     Style: ${request.style}
@@ -157,21 +157,22 @@ export async function generateWebsite(request: WebsiteGenerationRequest): Promis
     - Accessibility features
     
     Return CSS code only.`;
-    
+
     const { text: cssContent } = await generateAIText(cssPrompt);
     website.assets['styles.css'] = cssContent || generateFallbackCSS(request);
     website.progress = 90;
-    
+
     // Complete generation
     setTimeout(() => {
       website.status = 'completed';
       website.progress = 100;
     }, 2000);
-    
+
     return website;
-    
+
   } catch (error) {
-    return generateFallbackWebsite(request);
+    console.error('Website generation failed:', error);
+    throw new Error('Neural Synthesis failed to generate website');
   }
 }
 
@@ -219,9 +220,9 @@ function generateCSSTemplate(category: string): string {
     landing: { primary: '#ea580c', secondary: '#c2410c', accent: '#fb923c' },
     restaurant: { primary: '#92400e', secondary: '#78350f', accent: '#d97706' }
   };
-  
+
   const colors = colorSchemes[category as keyof typeof colorSchemes] || colorSchemes.business;
-  
+
   return `:root {
     --primary-color: ${colors.primary};
     --secondary-color: ${colors.secondary};
@@ -428,7 +429,7 @@ function generateFallbackPage(pageName: string, request: WebsiteGenerationReques
       </section>
     `
   };
-  
+
   return pageContent[pageName as keyof typeof pageContent] || pageContent.home;
 }
 
@@ -474,34 +475,13 @@ function generateFallbackCSS(request: WebsiteGenerationRequest): string {
   `;
 }
 
-function generateFallbackWebsite(request: WebsiteGenerationRequest): GeneratedWebsite {
-  const websiteId = `fallback_${Date.now()}`;
-  
-  return {
-    id: websiteId,
-    name: request.businessName,
-    url: `https://${websiteId}.lovable.app`,
-    previewUrl: `https://preview-${websiteId}.lovable.app`,
-    pages: {
-      home: generateFallbackPage('home', request),
-      about: generateFallbackPage('about', request),
-      services: generateFallbackPage('services', request),
-      contact: generateFallbackPage('contact', request)
-    },
-    assets: {
-      'styles.css': generateFallbackCSS(request)
-    },
-    status: 'completed',
-    progress: 100
-  };
-}
 
 // Website deployment (placeholder for actual deployment APIs)
 export async function deployWebsite(website: GeneratedWebsite): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     // Simulate deployment process
     await new Promise(resolve => setTimeout(resolve, 3000));
-    
+
     // In a real implementation, this would deploy to Netlify, Vercel, etc.
     return {
       success: true,

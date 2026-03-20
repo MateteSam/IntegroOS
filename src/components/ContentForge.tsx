@@ -16,14 +16,15 @@ import { SuggestionField } from '@/components/ui/suggestion-field';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import JSZip from 'jszip';
-import { generateAIText, generateBrandAsset } from "@/lib/aiClient";
+import { generateAIText, generateBrandAsset } from "@/lib/ai";
 import { generateBrandAssetsAPI } from "@/lib/api";
+import CampaignLibrary from './faith-nexus/CampaignLibrary';
 
 const ContentForge = () => {
   const { activeProject } = useProject();
   const { getSuggestion, suggestionsEnabled } = useBrandAI();
   const brandData = activeProject?.brandData || defaultBrandData;
-  const [activeTab, setActiveTab] = useState('templates');
+  const [activeTab, setActiveTab] = useState('campaign');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -112,7 +113,7 @@ const ContentForge = () => {
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
-    setPreviewImageUrl(`https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800&h=600`); // High-end default
+    setPreviewImageUrl(`data:image/svg+xml;base64,${btoa(`<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="24" fill="#f59e0b">Sovereign Preview</text></svg>`)}`);
     setActiveTab('customize');
   };
 
@@ -186,7 +187,6 @@ const ContentForge = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      {/* Header */}
       <div className="text-center space-y-4 mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1E293B] border border-amber-500/20 rounded-full shadow-lg">
           <Hammer className="h-4 w-4 text-amber-500" />
@@ -202,12 +202,17 @@ const ContentForge = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="campaign" className="data-[state=active]:text-amber-500">Campaign Assets</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="customize" disabled={!selectedTemplate}>Customize</TabsTrigger>
           <TabsTrigger value="preview" disabled={!selectedTemplate}>Preview</TabsTrigger>
           <TabsTrigger value="export" disabled={!selectedTemplate}>Export</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="campaign" className="mt-6">
+          <CampaignLibrary />
+        </TabsContent>
 
         <TabsContent value="templates" className="space-y-6">
           {/* Category Navigation */}
@@ -242,11 +247,11 @@ const ContentForge = () => {
                     >
                       <CardContent className="pt-4">
                         <div
-                          className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center bg-cover bg-center"
-                          style={{
-                            backgroundImage: `url(https://source.unsplash.com/featured/400x300?${encodeURIComponent(template.category + ' ' + template.name + ' design')})`
-                          }}
+                          className="aspect-[4/3] rounded-lg mb-3 flex items-center justify-center bg-slate-800"
                         >
+                          <div className="w-full h-full flex items-center justify-center opacity-20">
+                            <Sparkles className="h-12 w-12 text-amber-500" />
+                          </div>
                           <span className="text-white text-sm bg-black/50 px-2 py-1 rounded">{template.name}</span>
                         </div>
                         <h4 className="font-medium">{template.name}</h4>

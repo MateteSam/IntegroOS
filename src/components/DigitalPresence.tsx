@@ -14,7 +14,9 @@ import { LoadingState } from '@/components/LoadingState';
 import { useProject, defaultBrandData } from '@/contexts/ProjectContext';
 import { useBrandAI } from '@/hooks/useBrandAI';
 import { SuggestionField } from '@/components/ui/suggestion-field';
-import { generateWebsiteArchitecture } from '@/lib/aiClient';
+import { generateWebsiteArchitecture } from '@/lib/ai';
+import { ExportMicrosite } from './ExportMicrosite';
+import SiteManager from '@/components/SiteManager';
 
 interface DigitalPresenceProps {
   onNavigateBack?: () => void;
@@ -37,6 +39,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
   });
   const [buildProgress, setBuildProgress] = useState(0);
   const [isBuilding, setIsBuilding] = useState(false);
+  const [mockupUrl, setMockupUrl] = useState<string | null>(null);
 
   // Auto-fill from brand context
   useEffect(() => {
@@ -63,7 +66,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Contact Forms', 'Service Pages', 'About Us', 'Portfolio'],
       style: 'professional',
       pages: 5,
-      preview: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign Business</text></svg>`)}`
     },
     {
       id: 'ecommerce',
@@ -72,7 +75,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Product Catalog', 'Shopping Cart', 'Payment Gateway', 'Inventory'],
       style: 'modern',
       pages: 8,
-      preview: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign E-commerce</text></svg>`)}`
     },
     {
       id: 'portfolio',
@@ -81,7 +84,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Gallery', 'Project Showcase', 'Client Testimonials', 'Contact'],
       style: 'creative',
       pages: 4,
-      preview: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign Portfolio</text></svg>`)}`
     },
     {
       id: 'service',
@@ -90,7 +93,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Booking System', 'Service Listings', 'Testimonials', 'Blog'],
       style: 'clean',
       pages: 6,
-      preview: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign Service</text></svg>`)}`
     },
     {
       id: 'restaurant',
@@ -99,7 +102,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Menu Display', 'Online Ordering', 'Reservations', 'Location'],
       style: 'warm',
       pages: 5,
-      preview: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign Restaurant</text></svg>`)}`
     },
     {
       id: 'landing',
@@ -108,7 +111,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
       features: ['Lead Capture', 'CTA Optimization', 'Social Proof', 'Analytics'],
       style: 'conversion',
       pages: 1,
-      preview: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=300&h=200&fit=crop&crop=center'
+      preview: `data:image/svg+xml;base64,${btoa(`<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="14" fill="#f59e0b">Sovereign Landing</text></svg>`)}`
     }
   ];
 
@@ -171,7 +174,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
   const generatePreviewHTML = (websiteData: any) => {
     if (!websiteData?.pages?.home) return '<p>No preview available</p>';
 
-    // Inject Tailwind CDN and make it responsive
+    // Inject Tailwind CDN and ProLens Visual Editor
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -181,12 +184,26 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
         <title>${websiteData.businessName || 'Website'}</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
+          :root { --primary-gold: #c5a059; }
           ${websiteData.css || ''}
+          [contenteditable="true"] { outline: 2px dashed #c5a059 !important; outline-offset: 4px; }
         </style>
       </head>
       <body>
-        ${websiteData.pages.home}
+        <div id="prolens-root">${websiteData.pages.home}</div>
+        
         <script>
+          // ProLens Logic Injection
+          let designModeActive = false;
+          window.addEventListener('message', (e) => {
+            if (e.data === 'toggle-prolens') {
+              designModeActive = !designModeActive;
+              document.querySelectorAll('h1, h2, h3, p, span, button').forEach(el => {
+                el.contentEditable = designModeActive;
+              });
+              console.log('ProLens Mode:', designModeActive);
+            }
+          });
           ${websiteData.javascript || ''}
         </script>
       </body>
@@ -253,7 +270,7 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
 
       setWebsiteData(prev => ({ ...prev, generatedWebsite: data.website }));
       // Simulate mockup generation
-      setMockupUrl('https://via.placeholder.com/1200x800?text=Website+Mockup+Generated');
+      setMockupUrl(`data:image/svg+xml;base64,${btoa(`<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1E293B"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="48" fill="#f59e0b">Sovereign Architecture</text></svg>`)}`);
       setActiveTab('preview');
 
       toast({
@@ -305,10 +322,11 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="builder">Templates</TabsTrigger>
           <TabsTrigger value="customization">Customize</TabsTrigger>
           <TabsTrigger value="seo">SEO Setup</TabsTrigger>
+          <TabsTrigger value="livecontent">Live Content</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
           <TabsTrigger value="deploy">Deploy</TabsTrigger>
         </TabsList>
@@ -322,7 +340,66 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
                 Select the template that best fits your business needs
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-12">
+              {/* Sovereign Synthesis Active Projects */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-amber-500/80">Sovereign Synthesis: Active Microsites</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Faith Nexus */}
+                  <Card
+                    className="cursor-pointer group relative overflow-hidden border-primary/30 bg-primary/5 hover:border-primary transition-all shadow-gold"
+                    onClick={() => window.open('/p/faith-nexus', '_blank')}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="pt-6">
+                      <div className="aspect-video rounded-lg mb-4 bg-cover bg-center border border-primary/20"
+                        style={{ backgroundImage: `url(/images/branding/summit/faith_nexus_general_poster.png)` }}
+                      />
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-lg text-white font-playfair">Faith Nexus 2026</h4>
+                        <Badge className="bg-primary text-primary-foreground">ACTIVE</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-4">Summit Strategy Microsite. Pre-launch orchestration active.</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 border-primary/20 hover:bg-primary hover:text-primary-foreground transition-all" onClick={(e) => { e.stopPropagation(); window.open('/p/faith-nexus', '_blank'); }}>
+                          OS View
+                        </Button>
+                        <Button variant="secondary" size="sm" className="flex-1 bg-amber-500/20 text-amber-500 border border-amber-500/30 hover:bg-amber-500 hover:text-white" onClick={(e) => { e.stopPropagation(); window.open('/microsites/faith-nexus/index.html', '_blank'); }}>
+                          Public Build
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* TalkWorld */}
+                  <Card
+                    className="cursor-pointer group relative overflow-hidden border-blue-500/30 bg-blue-500/5 hover:border-blue-500 transition-all shadow-blue"
+                    onClick={() => window.open('/p/talk-world', '_blank')}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="pt-6">
+                      <div className="aspect-video rounded-lg mb-4 bg-cover bg-center border border-blue-500/20"
+                        style={{ backgroundImage: `url(/images/branding/talkworld/logo_primary.png)` }}
+                      />
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-lg text-white font-playfair">TalkWorld Platform</h4>
+                        <Badge className="bg-blue-600 text-white">ACTIVE</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-4">Neural TV Infrastructure. Feb 27 Launch Orchestration.</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all" onClick={(e) => { e.stopPropagation(); window.open('/p/talk-world', '_blank'); }}>
+                          OS View
+                        </Button>
+                        <Button variant="secondary" size="sm" className="flex-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white" onClick={(e) => { e.stopPropagation(); window.open('/microsites/talk-world/index.html', '_blank'); }}>
+                          Public Build
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-border/50" />
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {websiteTemplates.map(template => (
                   <Card
@@ -610,6 +687,14 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
           </Card>
         </TabsContent>
 
+        <TabsContent value="livecontent" className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-serif font-bold">Global Content Synchronization</h2>
+            <p className="text-muted-foreground">Manage and override content blocks across all connected headless nodes.</p>
+          </div>
+          <SiteManager />
+        </TabsContent>
+
         <TabsContent value="preview" className="space-y-6">
           <Card>
             <CardHeader>
@@ -659,7 +744,6 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
                       </Button>
                     </div>
                   )}
-                  {/* Device Preview Toggle */}
                   <div className="flex justify-center gap-2 mb-4">
                     <Button variant="outline" size="sm">
                       <Globe className="h-4 w-4 mr-2" />
@@ -668,6 +752,22 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
                     <Button variant="outline" size="sm">
                       <Smartphone className="h-4 w-4 mr-2" />
                       Mobile
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-amber-500/20 text-amber-500 border-amber-500/30 hover:bg-amber-500 hover:text-white"
+                      onClick={() => {
+                        const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+                        iframe?.contentWindow?.postMessage('toggle-prolens', '*');
+                        toast({
+                          title: "ProLens Mode Toggled",
+                          description: "Visual editing state updated in preview",
+                        });
+                      }}
+                    >
+                      <Zap className="h-4 w-4 mr-2" />
+                      ProLens Mode
                     </Button>
                   </div>
 
@@ -706,11 +806,16 @@ const DigitalPresence: React.FC<DigitalPresenceProps> = ({ onNavigateBack }) => 
         </TabsContent>
 
         <TabsContent value="deploy" className="space-y-6">
+          <div className="grid lg:grid-cols-2 gap-8">
+            <ExportMicrosite siteId="faith-nexus-2026" siteName="Faith Nexus 2026" />
+            <ExportMicrosite siteId="talk-world-2026" siteName="TalkWorld Platform" />
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>Deploy Your Website</CardTitle>
+              <CardTitle>Global Domain Orchestration</CardTitle>
               <CardDescription>
-                Launch your website to the world with hosting and domain setup
+                Launch your website to the world with managed hosting and domain setup
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

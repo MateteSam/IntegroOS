@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { generateBEASTStrategy, generateMarketAnalysis, generateBrandAsset, generateAIText } from './aiClient';
+import { generateBEASTStrategy, generateMarketAnalysis, generateBrandAsset, generateAIText } from './ai';
 
 export type BrandRequest = {
   businessName: string;

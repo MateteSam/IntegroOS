@@ -8,10 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { BarChart3, Search, TrendingUp, Users, Target, Eye, Download, Lightbulb, AlertCircle, Zap, UserPlus, Loader2, Brain } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
-import { generateMarketAnalysis, findNeuralProspects } from '@/lib/aiClient';
+import { generateMarketAnalysis, findNeuralProspects } from '@/lib/ai';
 
 const BusinessIntelligence = () => {
-  const [activeTab, setActiveTab] = useState('research');
+  const [activeTab, setActiveTab] = useState('leads');
   const [researchData, setResearchData] = useState({
     business: '',
     industry: '',
@@ -181,13 +181,56 @@ const BusinessIntelligence = () => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-muted border border-border grid w-full grid-cols-5">
+        <TabsList className="bg-muted border border-border grid w-full grid-cols-6">
+          <TabsTrigger value="leads" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Inbound Leads</TabsTrigger>
           <TabsTrigger value="research" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Setup</TabsTrigger>
           <TabsTrigger value="analysis" disabled={!researchData.business} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Analysis</TabsTrigger>
           <TabsTrigger value="results" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Results</TabsTrigger>
           <TabsTrigger value="prospecting" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Prospecting</TabsTrigger>
           <TabsTrigger value="reports" disabled={!analysisResults} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-serif">Reports</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="leads" className="space-y-6">
+          <Card className="bg-card/30 border-primary/20 glass">
+            <CardHeader>
+              <CardTitle className="font-serif text-2xl flex items-center gap-2">
+                <Target className="w-6 h-6 text-primary" />
+                Inbound Sales CRM
+              </CardTitle>
+              <CardDescription>Real-time leads routed from connected Headless CMS nodes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { name: 'Sarah Jenkins', company: 'TechFlow Inc.', intent: 92, source: 'WCCCS.global Form', date: '2 mins ago', summary: 'Requested enterprise consulting for Q3 planning.' },
+                  { name: 'Marcus Adebayo', company: 'Lagos Dynamics', intent: 88, source: 'AfroISO Landing', date: '1 hour ago', summary: 'Downloaded the ISO readiness playbook.' },
+                  { name: 'Elena Rostova', company: 'Global Ventures', intent: 45, source: 'StudioWorks Contact', date: '5 hours ago', summary: 'General inquiry about pricing.' }
+                ].map((lead, i) => (
+                  <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-accent/5 border border-border/50 hover:bg-accent/10 transition-colors">
+                    <div className="space-y-1 mb-4 md:mb-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-foreground">{lead.name}</span>
+                        <span className="text-muted-foreground text-sm">@ {lead.company}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{lead.summary}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <Badge variant="outline" className="text-[10px] uppercase font-mono">{lead.source}</Badge>
+                        <span className="text-xs text-muted-foreground">{lead.date}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge className={`${lead.intent > 80 ? 'bg-emerald-500/10 text-emerald-500 border-none' : 'bg-amber-500/10 text-amber-500 border-none'} flex gap-1 items-center`}>
+                        <Brain className="w-3 h-3" />
+                        AI Score: {lead.intent}
+                      </Badge>
+                      <Button size="sm" className="gradient-primary">Engage Lead</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="research" className="space-y-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
@@ -382,7 +425,7 @@ const BusinessIntelligence = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   );
 };
 

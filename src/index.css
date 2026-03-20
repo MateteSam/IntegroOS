@@ -5,15 +5,15 @@
 @layer base {
   :root {
     /* Sovereign Light Palette - Refined for Elite Precision */
-    --background: 0 0% 100%;
-    /* Pure White */
+    --background: 45 30% 97%;
+    /* Imperial Cream / Parchment */
     --foreground: 222 47% 11%;
     /* Deep Midnight Navy */
 
-    --card: 0 0% 99%;
+    --card: 45 20% 98%;
     --card-foreground: 222 47% 11%;
 
-    --popover: 0 0% 100%;
+    --popover: 45 30% 99%;
     --popover-foreground: 222 47% 11%;
 
     /* Brand Colors: Sovereign Gold & Midnight */
@@ -21,10 +21,10 @@
     /* #D4AF37 - Classic Gold */
     --primary-foreground: 222 47% 11%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 214 20% 92%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96%;
+    --muted: 214 20% 94%;
     --muted-foreground: 215 25% 27%;
     /* Darkened for better readability */
 
@@ -40,34 +40,36 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --electric: 212 100% 48%;
-    /* #0077FF - Electric Blue */
+    --electric: 212 90% 45%;
+    /* Refined for Cream contrast */
     --electric-foreground: 210 40% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 43 20% 88%;
+    /* Golden-tinged border */
+    --input: 43 20% 88%;
     --ring: 43 74% 49%;
 
     --radius: 0.75rem;
 
     /* Sidebar Variables */
-    --sidebar-background: 210 40% 98%;
+    --sidebar-background: 45 20% 96%;
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 43 74% 49%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 43 74% 49%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 214 32% 91%;
+    --sidebar-border: 43 20% 88%;
     --sidebar-ring: 43 74% 49%;
 
     /* Premium Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 60% 40%) 100%);
     --gradient-gold: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    --gradient-cream: linear-gradient(to bottom, #FFFBED, #FDF5E6);
 
     /* Premium Shadows */
     --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
     /* Subtle Depth */
-    --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.15);
+    --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.12);
   }
 
   .dark {
@@ -159,13 +161,13 @@
 
   /* Sovereign Gold Glassmorphism 2.0 */
   .glass-sovereign {
-    @apply backdrop-blur-2xl bg-white/60 dark:bg-[#0F172A]/80 border border-primary/20;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    @apply backdrop-blur-2xl bg-white/40 dark:bg-[#0F172A]/70 border border-primary/10;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.01), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 
   .glass-sovereign-card {
-    @apply backdrop-blur-xl bg-card/40 border border-border/80 hover:border-primary/40 transition-all duration-300;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.03);
+    @apply backdrop-blur-xl bg-white/30 dark:bg-card/30 border border-border/40 hover:border-primary/30 transition-all duration-300;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.02);
   }
 
   /* Sophisticated Hover Effects */
@@ -234,5 +236,42 @@
     @apply bg-clip-text text-transparent;
     background-clip: text;
     background-image: var(--gradient-primary);
+  }
+
+  /* Intelligence Core Animations */
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(-20px) rotate(2deg);
+    }
+  }
+
+  @keyframes neural-pulse {
+
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(1);
+      filter: blur(80px);
+    }
+
+    50% {
+      opacity: 0.7;
+      transform: scale(1.1);
+      filter: blur(100px);
+    }
+  }
+
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-neural-pulse {
+    animation: neural-pulse 10s ease-in-out infinite;
   }
 }

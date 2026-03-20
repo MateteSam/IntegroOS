@@ -13,7 +13,7 @@ export async function searchUnsplashImages(query: string, count: number = 9): Pr
   try {
     const apiKey = localStorage.getItem('UNSPLASH_API_KEY');
     if (!apiKey) {
-      return generateFallbackImages(query, count, 'unsplash');
+      return [];
     }
 
     const response = await fetch(
@@ -26,7 +26,7 @@ export async function searchUnsplashImages(query: string, count: number = 9): Pr
     );
 
     if (!response.ok) {
-      return generateFallbackImages(query, count, 'unsplash');
+      return [];
     }
 
     const data = await response.json();
@@ -40,7 +40,7 @@ export async function searchUnsplashImages(query: string, count: number = 9): Pr
     }));
   } catch (error) {
     console.error('Unsplash API error:', error);
-    return generateFallbackImages(query, count, 'unsplash');
+    return [];
   }
 }
 
@@ -49,7 +49,7 @@ export async function searchPexelsImages(query: string, count: number = 9): Prom
   try {
     const apiKey = localStorage.getItem('PEXELS_API_KEY');
     if (!apiKey) {
-      return generateFallbackImages(query, count, 'pexels');
+      return [];
     }
 
     const response = await fetch(
@@ -62,7 +62,7 @@ export async function searchPexelsImages(query: string, count: number = 9): Prom
     );
 
     if (!response.ok) {
-      return generateFallbackImages(query, count, 'pexels');
+      return [];
     }
 
     const data = await response.json();
@@ -76,33 +76,20 @@ export async function searchPexelsImages(query: string, count: number = 9): Prom
     }));
   } catch (error) {
     console.error('Pexels API error:', error);
-    return generateFallbackImages(query, count, 'pexels');
+    return [];
   }
 }
 
-// Fallback to Unsplash Source (no API key required)
-function generateFallbackImages(query: string, count: number, source: 'unsplash' | 'pexels'): ImageAsset[] {
-  const seed = query.toLowerCase().replace(/\s+/g, '-');
-  
-  return Array.from({ length: count }, (_, index) => ({
-    id: `${source}-${seed}-${index}`,
-    url: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&sig=${index}`,
-    thumbnail: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&sig=${index}`,
-    alt: `${query} image ${index + 1}`,
-    photographer: 'Unsplash',
-    source,
-  }));
-}
 
 // Search both APIs and combine results
 export async function searchImages(query: string, count: number = 18): Promise<ImageAsset[]> {
   const halfCount = Math.ceil(count / 2);
-  
+
   const [unsplashImages, pexelsImages] = await Promise.all([
     searchUnsplashImages(query, halfCount),
     searchPexelsImages(query, halfCount),
   ]);
-  
+
   return [...unsplashImages, ...pexelsImages].slice(0, count);
 }
 

@@ -7,6 +7,9 @@ import ContentForge from '@/components/ContentForge';
 import DigitalPresence from '@/components/DigitalPresence';
 import DraftingWorkspace from '@/components/DraftingWorkspace';
 import { Card } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Send, ShieldCheck, Share2 } from 'lucide-react';
 
 export default function ContentNexus() {
     const { activeProject } = useProject();
@@ -53,6 +56,15 @@ export default function ContentNexus() {
                 <div className="flex items-center justify-between mb-8 border-b border-border pb-1">
                     <TabsList className="bg-transparent p-0 gap-8 h-auto">
                         <TabsTrigger
+                            value="social-queue"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-400 data-[state=active]:text-amber-400 text-muted-foreground hover:text-foreground rounded-none px-2 py-4 h-auto font-playfair text-lg transition-all"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Share2 className="h-5 w-5" />
+                                Post Queues
+                            </div>
+                        </TabsTrigger>
+                        <TabsTrigger
                             value="book"
                             className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-400 data-[state=active]:text-amber-400 text-muted-foreground hover:text-foreground rounded-none px-2 py-4 h-auto font-playfair text-lg transition-all"
                         >
@@ -93,6 +105,48 @@ export default function ContentNexus() {
 
                 {/* Protocol Interfaces */}
                 <div className="flex-1 overflow-auto rounded-xl glass-sovereign relative min-h-[600px]">
+
+                    <TabsContent value="social-queue" className="h-full m-0 p-0 border-none outline-none data-[state=active]:animate-in data-[state=active]:zoom-in-95 duration-300">
+                        <div className="p-6 space-y-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-serif font-bold">Autonomous Publishing Queue</h2>
+                                    <p className="text-muted-foreground">Review and approve AI-generated social content before deployment.</p>
+                                </div>
+                                <Button className="gradient-primary"><Clock className="w-4 h-4 mr-2" /> Resynchronize Schedule</Button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {[
+                                    { platform: 'Twitter / X', content: 'The Velocity of Vision. The 2026 Summit will redefine institutional sovereignty. Pre-register now. #WCCCS2026', time: 'Tomorrow, 09:00 AM', status: 'Approved', platformColor: 'bg-black text-white' },
+                                    { platform: 'LinkedIn', content: 'Our strategic blueprint for autonomous enterprise management is live. See how TalkWorld handles high-fidelity streams. Link in comments.', time: 'Friday, 11:30 AM', status: 'Pending Review', platformColor: 'bg-blue-600 text-white' },
+                                    { platform: 'Instagram', content: '[Visual: Glassmorphism OS Mockup] The future is sovereign. We are building the engine.', time: 'Saturday, 14:00 PM', status: 'Drafting (AI)', platformColor: 'bg-pink-600 text-white' },
+                                ].map((post, i) => (
+                                    <Card key={i} className="glass p-6 border-border/50 hover:border-primary/50 transition-all flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+                                        <div className="space-y-3 flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <Badge className={`${post.platformColor} hover:${post.platformColor} border-none`}>{post.platform}</Badge>
+                                                <span className="text-xs text-muted-foreground font-medium flex items-center"><Clock className="w-3 h-3 mr-1" /> {post.time}</span>
+                                            </div>
+                                            <p className="font-light text-foreground">{post.content}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            {post.status === 'Approved' && (
+                                                <Badge variant="outline" className="border-emerald-500/30 text-emerald-500 bg-emerald-500/10"><ShieldCheck className="w-3 h-3 mr-1" /> {post.status}</Badge>
+                                            )}
+                                            {post.status === 'Pending Review' && (
+                                                <Button size="sm" className="gradient-primary text-black"><ShieldCheck className="w-4 h-4 mr-1" /> Approve</Button>
+                                            )}
+                                            {post.status === 'Drafting (AI)' && (
+                                                <Badge variant="outline" className="border-amber-500/30 text-amber-500 bg-amber-500/10 animate-pulse">Drafting...</Badge>
+                                            )}
+                                            <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-primary"><Send className="w-4 h-4" /></Button>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    </TabsContent>
 
                     <TabsContent value="book" className="h-full m-0 p-0 border-none outline-none data-[state=active]:animate-in data-[state=active]:zoom-in-95 duration-300">
                         {/* We wrap AIBookStudio to ensure it fits the container if needed, or just render it directly */}

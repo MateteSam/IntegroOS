@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { generateBEASTStrategy } from "@/lib/aiClient";
+import { generateBEASTStrategy } from "@/lib/ai";
 
 export interface AgenticTask {
     id: string;

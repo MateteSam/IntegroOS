@@ -1,7 +1,7 @@
 import React from 'react';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { Button } from '@/components/ui/button';
-import { Download, Heart, Eye, Share2, MessageSquare, Copy } from 'lucide-react';
+import { Download, Heart, Eye, Share2, MessageSquare, Copy, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Asset {
@@ -9,6 +9,13 @@ interface Asset {
   fallbackUrl?: string;
   type: string;
   timestamp: number;
+  textOverlay?: string; // New: Supports hybrid rendering
+  style?: {
+    fontFamily?: string;
+    fontSize?: string;
+    color?: string;
+    position?: 'top' | 'middle' | 'bottom';
+  };
 }
 
 interface DynamicAssetGridProps {
@@ -19,9 +26,12 @@ interface DynamicAssetGridProps {
   onShare?: (asset: Asset) => void;
   onComment?: (asset: Asset) => void;
   onCompare?: (asset: Asset) => void;
+  onEdit?: (asset: Asset) => void;
   favorites?: Set<string>;
   className?: string;
+  renderExtraActions?: (asset: Asset) => React.ReactNode;
 }
+
 
 export const DynamicAssetGrid: React.FC<DynamicAssetGridProps> = ({
   assets,
@@ -31,9 +41,12 @@ export const DynamicAssetGrid: React.FC<DynamicAssetGridProps> = ({
   onShare,
   onComment,
   onCompare,
+  onEdit,
   favorites = new Set(),
-  className = ''
+  className = '',
+  renderExtraActions
 }) => {
+
   return (
     <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6", className)}>
       {assets.map((asset, index) => {
@@ -63,6 +76,29 @@ export const DynamicAssetGrid: React.FC<DynamicAssetGridProps> = ({
                   <Eye className="w-4 h-4 text-foreground" />
                 </div>
               </div>
+
+              {/* Hybrid Engine: Text Overlay Layer */}
+              {asset.textOverlay && (
+                <div className={cn(
+                  "absolute inset-0 flex flex-col items-center pointer-events-none p-8",
+                  asset.style?.position === 'top' ? "justify-start" :
+                    asset.style?.position === 'bottom' ? "justify-end" : "justify-center"
+                )}>
+                  <div
+                    className="text-center drop-shadow-[0_5px_15px_rgba(0,0,0,1)] select-none"
+                    style={{
+                      fontFamily: asset.style?.fontFamily || "'Playfair Display', serif",
+                      fontSize: asset.style?.fontSize || '2.5rem',
+                      color: asset.style?.color || '#D4AF37',
+                      letterSpacing: '0.1em',
+                      fontWeight: '800',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {asset.textOverlay}
+                  </div>
+                </div>
+              )}
 
               {/* Favorite Badge */}
               {isFavorite && (
@@ -151,6 +187,21 @@ export const DynamicAssetGrid: React.FC<DynamicAssetGridProps> = ({
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Download</span>
               </Button>
+              {onEdit && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(asset);
+                  }}
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span className="hidden sm:inline">Edit</span>
+                </Button>
+              )}
+              {renderExtraActions?.(asset)}
             </div>
           </div>
         );

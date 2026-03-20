@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Dna, Palette, Type, Sparkles, Heart } from 'lucide-react';
-import { extractBrandDNA } from '@/lib/aiClient';
+import { extractBrandDNA } from '@/lib/ai';
 import { toast } from 'sonner';
 
 interface BrandDNA {

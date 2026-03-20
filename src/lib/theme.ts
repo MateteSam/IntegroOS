@@ -1,4 +1,4 @@
-// Theme configuration for the Marketing Brain Command Center
+// Theme configuration for the Integro AI Agent OS
 // This centralizes all design tokens for consistent styling
 
 export type ColorShade = {
@@ -346,17 +346,17 @@ export const getHoverGradient = (name: keyof ThemeGradients): string => {
     const num = parseInt(match);
     return (num + 100).toString();
   });
-  
+
   const toHover = gradient.to.replace(/\d+/, (match) => {
     const num = parseInt(match);
     return (num + 100).toString();
   });
-  
+
   const viaHover = gradient.via ? gradient.via.replace(/\d+/, (match) => {
     const num = parseInt(match);
     return (num + 100).toString();
   }) : '';
-  
+
   return `hover:bg-gradient-to-r ${fromHover} ${viaHover ? viaHover : ''} ${toHover}`;
 };
 

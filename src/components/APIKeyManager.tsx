@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, EyeOff, Key, Save, ExternalLink } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { saveVideoAPIKeys } from '@/lib/videoAPI';
-import { saveGoogleKeyToLocalStorage } from '@/lib/aiClient';
+import { saveGoogleKeyToLocalStorage } from '@/lib/ai';
 
 const APIKeyManager = () => {
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [keys, setKeys] = useState({
     google: localStorage.getItem('GOOGLE_API_KEY') || '',
+    groq: localStorage.getItem('GROQ_API_KEY') || '',
+    openrouter: localStorage.getItem('OPENROUTER_API_KEY') || '',
     pexels: localStorage.getItem('PEXELS_API_KEY') || '',
     elevenlabs: localStorage.getItem('ELEVENLABS_API_KEY') || '',
     runway: localStorage.getItem('RUNWAY_API_KEY') || '',
@@ -27,6 +29,22 @@ const APIKeyManager = () => {
       website: 'https://makersuite.google.com/app/apikey',
       tier: 'Free tier available',
       required: true
+    },
+    {
+      id: 'groq',
+      name: 'Groq (Llama 3)',
+      description: 'Ultra-fast Llama 3, Mixtral, and other models',
+      website: 'https://console.groq.com/keys',
+      tier: 'Generous free tier available',
+      required: false
+    },
+    {
+      id: 'openrouter',
+      name: 'OpenRouter',
+      description: '25+ free models including DeepSeek V3, Qwen, Gemma',
+      website: 'https://openrouter.ai/keys',
+      tier: '50 requests/day free',
+      required: false
     },
     {
       id: 'pexels',
@@ -83,6 +101,16 @@ const APIKeyManager = () => {
         saveGoogleKeyToLocalStorage(keys.google);
       }
 
+      // Save Groq API key
+      if (keys.groq) {
+        localStorage.setItem('GROQ_API_KEY', keys.groq);
+      }
+
+      // Save OpenRouter API key
+      if (keys.openrouter) {
+        localStorage.setItem('OPENROUTER_API_KEY', keys.openrouter);
+      }
+
       // Save video API keys
       saveVideoAPIKeys({
         pexels: keys.pexels,
@@ -115,7 +143,7 @@ const APIKeyManager = () => {
           Configure API Services
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Connect your API keys to unlock the full potential of MLM Business Nexus. 
+          Connect your API keys to unlock the full potential of MLM Business Nexus.
           All keys are stored securely in your browser.
         </p>
       </div>
@@ -172,7 +200,7 @@ const APIKeyManager = () => {
                   </Button>
                 </div>
               </div>
-              
+
               {keys[service.id as keyof typeof keys] && (
                 <div className="flex items-center gap-2 text-sm text-green-600">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -190,7 +218,7 @@ const APIKeyManager = () => {
             <div className="space-y-2">
               <h3 className="font-semibold">Security Notice</h3>
               <p className="text-sm text-muted-foreground max-w-md">
-                API keys are stored locally in your browser and never sent to our servers. 
+                API keys are stored locally in your browser and never sent to our servers.
                 For production use, consider using environment variables or secure key management.
               </p>
             </div>

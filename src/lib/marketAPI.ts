@@ -1,5 +1,5 @@
 // Market research and competitive analysis API integrations
-import { generateAIText } from './aiClient';
+import { generateAIText } from './ai';
 
 export type MarketInsight = {
   id: string;
@@ -67,10 +67,10 @@ export async function conductMarketResearch(request: MarketResearchRequest): Pro
     Categories: trend, opportunity, threat, analysis
     Impact: high, medium, low
     Timeframe: immediate, short-term, long-term`;
-    
+
     const { text } = await generateAIText(researchPrompt);
     const insights = JSON.parse(text || '[]');
-    
+
     if (Array.isArray(insights) && insights.length > 0) {
       return insights.map((insight, index) => ({
         id: `insight_${index}`,
@@ -80,7 +80,7 @@ export async function conductMarketResearch(request: MarketResearchRequest): Pro
   } catch (error) {
     console.log('AI market research failed, using fallback');
   }
-  
+
   return generateFallbackMarketInsights(request);
 }
 
@@ -127,7 +127,7 @@ function generateFallbackMarketInsights(request: MarketResearchRequest): MarketI
       data: { personalizationDemand: '89%', digitalPreference: '76%', mobileFocus: '84%' }
     }
   ];
-  
+
   return insights;
 }
 
@@ -146,10 +146,10 @@ export async function analyzeCompetitors(industry: string, location: string, com
     - Social media presence
     
     Return as JSON array with objects containing: name, description, strengths (array), weaknesses (array), marketShare (number), pricing {min, max, currency}, keywords (array), socialPresence {twitter, linkedin, facebook, instagram}.`;
-    
+
     const { text } = await generateAIText(analysisPrompt);
     const analysis = JSON.parse(text || '[]');
-    
+
     if (Array.isArray(analysis) && analysis.length > 0) {
       return analysis.map((comp, index) => ({
         id: `competitor_${index}`,
@@ -160,7 +160,7 @@ export async function analyzeCompetitors(industry: string, location: string, com
   } catch (error) {
     console.log('AI competitor analysis failed, using fallback');
   }
-  
+
   return generateFallbackCompetitorAnalysis(industry, competitors);
 }
 
@@ -172,7 +172,7 @@ function generateFallbackCompetitorAnalysis(industry: string, competitors: strin
     `Innovative ${industry} Ltd.`,
     `Next-Gen ${industry} Corp.`
   ];
-  
+
   return competitorNames.slice(0, 5).map((name, index) => ({
     id: `competitor_${index}`,
     name,
@@ -227,17 +227,17 @@ export async function researchKeywords(industry: string, location: string, seedK
     - Related keyword suggestions
     
     Return as JSON array with objects containing: keyword, searchVolume, difficulty, competition, cpc, trend, relatedKeywords (array).`;
-    
+
     const { text } = await generateAIText(keywordPrompt);
     const keywords = JSON.parse(text || '[]');
-    
+
     if (Array.isArray(keywords) && keywords.length > 0) {
       return keywords;
     }
   } catch (error) {
     console.log('AI keyword research failed, using fallback');
   }
-  
+
   return generateFallbackKeywordAnalysis(industry, location, seedKeywords);
 }
 
@@ -249,7 +249,7 @@ function generateFallbackKeywordAnalysis(industry: string, location: string, see
     `${industry} provider`,
     `professional ${industry}`
   ];
-  
+
   const locationKeywords = location !== 'global' ? [
     `${industry} ${location}`,
     `${industry} services ${location}`,
@@ -257,7 +257,7 @@ function generateFallbackKeywordAnalysis(industry: string, location: string, see
     `local ${industry} ${location}`,
     `best ${industry} ${location}`
   ] : [];
-  
+
   const longTailKeywords = [
     `how to choose ${industry} provider`,
     `best ${industry} services for small business`,
@@ -265,9 +265,9 @@ function generateFallbackKeywordAnalysis(industry: string, location: string, see
     `${industry} consulting services`,
     `${industry} implementation guide`
   ];
-  
+
   const allKeywords = [...baseKeywords, ...locationKeywords, ...longTailKeywords];
-  
+
   return allKeywords.map((keyword, index) => ({
     keyword,
     searchVolume: Math.floor(Math.random() * 50000) + 1000,
@@ -297,10 +297,10 @@ export async function getIndustryTrends(industry: string): Promise<MarketInsight
     - Future predictions
     
     Return as JSON array with trend objects containing: title, description, category, confidence, impact, timeframe, data.`;
-    
+
     const { text } = await generateAIText(trendsPrompt);
     const trends = JSON.parse(text || '[]');
-    
+
     if (Array.isArray(trends) && trends.length > 0) {
       return trends.map((trend, index) => ({
         id: `trend_${index}`,
@@ -310,7 +310,7 @@ export async function getIndustryTrends(industry: string): Promise<MarketInsight
   } catch (error) {
     console.log('AI trend analysis failed, using fallback');
   }
-  
+
   return generateFallbackTrends(industry);
 }
 
@@ -368,17 +368,17 @@ export async function getMarketSizeAnalysis(industry: string, location: string):
     - Market maturity level
     
     Return as JSON with: currentSize (number), projectedGrowth (%), currency, timeframe, segments (array with name, size, growth).`;
-    
+
     const { text } = await generateAIText(marketPrompt);
     const marketData = JSON.parse(text || '{}');
-    
+
     if (marketData.currentSize) {
       return marketData;
     }
   } catch (error) {
     console.log('AI market size analysis failed, using fallback');
   }
-  
+
   // Fallback market data
   return {
     currentSize: Math.floor(Math.random() * 50000000000) + 10000000000, // $10B - $60B

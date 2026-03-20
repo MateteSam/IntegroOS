@@ -1,0 +1,38 @@
+
+> vite_react_shadcn_ts@0.0.1 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 3684 modules transformed.
+
+Browserslist: browsers data (caniuse-lite) is 17 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+[1m[33mwarn[39m[22m - The class `ease-[cubic-bezier(0.4,0,0.2,1)]` is ambiguous and matches multiple utilities.
+[1m[33mwarn[39m[22m - If this is content and not a class, replace it with `ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;` to silence this warning.
+
+/images/branding/summit/creator_portal_hero_v1.png referenced in /images/branding/summit/creator_portal_hero_v1.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[31mx[39m Build failed in 6.08s
+[31merror during build:
+[31msrc/pages/AIBookStudio.tsx (16:9): "log" is not exported by "src/lib/utils.ts", imported by "src/pages/AIBookStudio.tsx".[31m
+file: [36mC:/Users/admin/OneDrive/Documents/Billion Rands Filing Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/src/pages/AIBookStudio.tsx:16:9[31m
+[33m
+14: import { jsPDF } from 'jspdf'
+15: import { generateCoverSVG, renderCoverPNG300DPI, getPageDimensions, generateLayoutPDF, validateOutputs, buildMockups,...
+16: import { log } from '@/lib/utils'
+             ^
+17: import { saveGoogleKeyToLocalStorage, extractTextFromImage } from '@/lib/ai'
+18: import { exportEditablePackage } from '@/lib/exportEditable'
+[31m
+    at getRollupError (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:16875:16)
+    at Module.traceVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:17327:29)
+    at ModuleScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:14997:39)
+    at ReturnValueScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at FunctionBodyScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at ReturnValueScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at FunctionBodyScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)
+    at ParameterScope.findVariable (file:///C:/Users/admin/OneDrive/Documents/Billion%20Rands%20Filing%20Cabinet/marketing-brain-command-center-57078-main/marketing-brain-command-center-57078-main/node_modules/rollup/dist/es/shared/node-entry.js:5620:38)[39m

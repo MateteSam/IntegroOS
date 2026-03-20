@@ -12,8 +12,10 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///marketing_brain.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Redis
+    # Redis & Celery
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://localhost:6379/0'
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL') or REDIS_URL
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND') or REDIS_URL
     
     # JWT
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY

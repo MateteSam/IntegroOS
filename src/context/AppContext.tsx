@@ -36,8 +36,12 @@ interface AppContextType {
 
 // Initial state
 const initialState: AppState = {
-  user: null,
-  isAuthenticated: false,
+  user: {
+    id: '00000000-0000-0000-0000-000000000000',
+    full_name: 'Sovereign Administrator',
+    email: 'admin@sovereign.os',
+  } as any,
+  isAuthenticated: true,
   theme: 'dark', // Default theme
   notifications: [],
   unreadNotificationsCount: 0,
@@ -121,11 +125,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Apply theme changes
   useEffect(() => {
     localStorage.setItem('theme', state.theme);
-    
+
     // Apply theme to document
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
-    
+
     if (state.theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
@@ -140,24 +144,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const login = async (email: string, password: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      
+
       // In a real app, this would be an API call
       // For now, we'll simulate a successful login
       const mockUser: User = {
         id: '1',
-        name: 'Demo User',
+        full_name: 'Demo User',
         email,
-        role: 'user',
-        preferences: {
-          theme: state.theme,
-          notifications: true,
-          emailUpdates: false,
-        },
       };
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       dispatch({ type: 'SET_USER', payload: mockUser });
     } catch (error) {
       dispatch({

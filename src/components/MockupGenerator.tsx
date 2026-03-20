@@ -3,17 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import { Card } from '@/components/ui/card';
 import { Loader2, Box, Download, Image as ImageIcon, Sparkles, Wand2, Smartphone, Monitor, Tablet, CreditCard, Frame, Shirt } from "lucide-react";
-import { generateMockup as aiGenerateMockup } from "@/lib/aiClient";
+import { generateMockup as aiGenerateMockup } from "@/lib/ai";
 import { toast } from "sonner";
 
 interface MockupGeneratorProps {
   assetUrl: string;
-  assetType: string; // Added assetType based on the new generateMockup call
-  activeProject?: { brandData?: any }; // Added activeProject based on the new generateMockup call
+  assetType: string;
+  activeProject?: { brandData?: any };
   onGenerated: (mockupUrl: string) => void;
 }
-
-// The mockupTypes array is removed as the new generateMockup function takes assetType directly.
 
 export const MockupGenerator = ({ assetUrl, assetType, activeProject, onGenerated }: MockupGeneratorProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -31,7 +29,7 @@ export const MockupGenerator = ({ assetUrl, assetType, activeProject, onGenerate
 
   const generateMockup = async (type: string) => {
     setIsGenerating(true);
-    setSelectedType(type); // Still setting selectedType for UI feedback if needed
+    setSelectedType(type);
     try {
       const data = await aiGenerateMockup({
         assetUrl,
@@ -41,8 +39,6 @@ export const MockupGenerator = ({ assetUrl, assetType, activeProject, onGenerate
 
       setGeneratedMockup(data.imageUrl);
       onGenerated?.(data.imageUrl);
-      setWebsiteData(prev => ({ ...prev, generatedWebsite: data.website }));
-      setActiveTab('preview');
       toast.success("Mockup generated successfully!");
     } catch (error) {
       console.error('Error generating mockup:', error);
@@ -78,11 +74,7 @@ export const MockupGenerator = ({ assetUrl, assetType, activeProject, onGenerate
         })}
       </div>
 
-      {websiteData.generatedWebsite ? (
-        <div className="space-y-4">
-          {/* Device Preview Toggle */}
-        </div>
-      ) : generatedMockup && (
+      {generatedMockup && (
         <div className="mt-4">
           <img
             src={generatedMockup}

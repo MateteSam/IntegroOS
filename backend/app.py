@@ -38,15 +38,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from analytics_engine import analytics_engine
 from config import config
 from logging_config import setup_logging, get_logger
-from models import Campaign, Analytics, User, db, CampaignStatus
+from models import Campaign, Analytics, User, db, CampaignStatus, UserRole
 from utils import validate_json, CampaignSchema, AnalyticsSchema, UpdateCampaignSchema, UserSchema, LoginSchema, handle_errors
+from celery_app import make_celery
 
 # Setup logging
 setup_logging()
 logger = get_logger(__name__)
 
 # Initialize app
+celery = None
+
 def create_app(config_name='development'):
+    global celery
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
@@ -58,8 +62,22 @@ def create_app(config_name='development'):
     allowed_origins = app.config.get('ALLOWED_ORIGINS', '*')
     CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
     
-    # SocketIO for real-time updates
+    # Initialize Celery
+    celery = make_celery(app)
+    
+    # Register blueprints
+    from routes.cms_routes import cms_bp
+    from routes.agent_routes import agent_bp, init_celery_tasks
+    from launch_film.film_routes import film_bp
+    app.register_blueprint(cms_bp)
+    app.register_blueprint(agent_bp)
+    app.register_blueprint(film_bp)
+    
+    # Initialize real-time SocketIO
     socketio = SocketIO(app, cors_allowed_origins="*")
+    
+    # Initialize celery tasks with socket app for real-time telemetry
+    init_celery_tasks(celery, socketio)
     
     return app, socketio
 
@@ -481,6 +499,59 @@ def handle_leave_user_room(data):
     if user_id:
         leave_room(f'user_{user_id}')
         logger.info("User left room", user_id=user_id, sid=request.sid)
+
+import subprocess
+import os
+import platform
+
+# System Launcher Routes
+@app.route('/api/system/launch', methods=['POST'])
+@jwt_required()
+def launch_system_command():
+    """Launch system commands like VS Code, Explorer, or Terminal."""
+    user_id = int(get_jwt_identity())
+    data = request.json
+    path = data.get('path')
+    action = data.get('action') # vscode, explorer, terminal
+    
+    if not path or not os.path.exists(path):
+        logger.warning(f"Launch failed - invalid path: {path}", user_id=user_id)
+        return jsonify({'error': 'Path not found'}), 404
+        
+    try:
+        logger.info(f"System launch: {action} on {path}", user_id=user_id)
+        
+        if action == 'vscode':
+            if platform.system() == 'Windows':
+                subprocess.Popen(['code', path], shell=True)
+            else:
+                subprocess.Popen(['code', path])
+                
+        elif action == 'explorer':
+            if platform.system() == 'Windows':
+                subprocess.Popen(['explorer', path])
+            elif platform.system() == 'Darwin': # macOS
+                subprocess.Popen(['open', path])
+            else: # Linux
+                subprocess.Popen(['xdg-open', path])
+                
+        elif action == 'terminal':
+            if platform.system() == 'Windows':
+                # Opens new command prompt window at path
+                subprocess.Popen(['start', 'cmd', '/k', f'cd /d "{path}"'], shell=True)
+            elif platform.system() == 'Darwin':
+                subprocess.Popen(['open', '-a', 'Terminal', path])
+            else:
+                subprocess.Popen(['x-terminal-emulator', '--working-directory', path])
+                
+        else:
+            return jsonify({'error': 'Invalid action'}), 400
+            
+        return jsonify({'status': 'success', 'message': f'Launched {action}'})
+        
+    except Exception as e:
+        logger.error(f"Launch error: {str(e)}", user_id=user_id)
+        return jsonify({'error': f'Launch failed: {str(e)}'}), 500
 
 # Health check
 @app.route('/health')

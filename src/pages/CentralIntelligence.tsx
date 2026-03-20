@@ -18,11 +18,11 @@ export default function CentralIntelligence() {
 
                 <div className="space-y-1 relative z-10">
                     <h1 className="text-3xl font-playfair font-bold text-foreground flex items-center gap-3">
-                        <Brain className="h-8 w-8 text-amber-400" />
-                        Central Intelligence
+                        <LineChart className="h-8 w-8 text-amber-400" />
+                        Intelligence Layer
                     </h1>
                     <p className="text-muted-foreground font-inter">
-                        Monitor commercial performance and market dynamics.
+                        Continuous market analysis and strategic reporting.
                         <span className="ml-4 px-3 py-1 rounded-full bg-accent/5 border border-border text-xs text-amber-500 font-medium backdrop-blur-md">
                             Active Protocol: {activeProtocol.toUpperCase()}
                         </span>

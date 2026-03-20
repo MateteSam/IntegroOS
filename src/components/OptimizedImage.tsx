@@ -34,12 +34,10 @@ export const OptimizedImage = ({ src, fallbackSrc, alt, className, onClick }: Op
     if (errorCount === 0 && fallbackSrc) {
       setCurrentSrc(fallbackSrc);
       setErrorCount(1);
-    } else if (errorCount === 1) {
-      const finalFallback = `https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=60&w=800`;
+    } else {
+      // Final fallback is a clean Sovereign SVG data URI
+      const finalFallback = `data:image/svg+xml;base64,${btoa(`<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1e293b"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="24" fill="#f59e0b">Sovereign Asset</text></svg>`)}`;
       setCurrentSrc(finalFallback);
-      setErrorCount(2);
-    } else if (errorCount === 2) {
-      setCurrentSrc("https://placehold.co/800x800/1e293b/white?text=Asset+Ready");
       setErrorCount(3);
     }
     setIsLoaded(false); // Force re-triggering of onLoad for the next source

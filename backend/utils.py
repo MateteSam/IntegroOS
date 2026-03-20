@@ -13,10 +13,10 @@ from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Rate limiter
+# Rate limiter (raised limits for local dev polling)
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
+    default_limits=["10000 per day", "5000 per hour", "100 per minute"]
 )
 
 # Cache setup

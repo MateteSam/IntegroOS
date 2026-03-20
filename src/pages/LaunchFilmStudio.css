@@ -1,0 +1,897 @@
+/* ====================================================================
+   StudioWorks ULTRA — Futuristic NLE V5
+   Glassmorphism · Neon Accents · GPU-Accelerated · 60fps Smooth
+   ==================================================================== */
+
+/* ---- Google Fonts ---- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;700;800;900&family=Playfair+Display:wght@700;900&family=Space+Grotesk:wght@500;700&family=DM+Serif+Display&family=Bebas+Neue&family=Raleway:wght@400;700;900&family=Cinzel:wght@700;900&family=Cormorant+Garamond:wght@600&family=Syne:wght@800&display=swap');
+
+/* ---- Design Tokens ---- */
+:root {
+    --nle-bg: #07080d;
+    --nle-panel: rgba(10, 12, 20, 0.88);
+    --nle-panel-border: rgba(255, 255, 255, 0.07);
+    --nle-accent: #6366f1;
+    --nle-accent-2: #a855f7;
+    --nle-gold: #f59e0b;
+    --nle-glow: rgba(99, 102, 241, 0.35);
+    --nle-red: #ef4444;
+    --nle-green: #10b981;
+    --nle-playhead: #f59e0b;
+    --nle-radius: 10px;
+    --nle-transition: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   ROOT SHELL
+   ============================================================ */
+.nle-root {
+    background: var(--nle-bg);
+    background-image:
+        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 90% 100%, rgba(168, 85, 247, 0.06) 0%, transparent 60%);
+    font-family: 'Inter', 'Space Grotesk', sans-serif;
+    color: #f1f5f9;
+    will-change: auto;
+}
+
+/* ============================================================
+   HEADER / TOP NAV
+   ============================================================ */
+.nle-header {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: rgba(8, 9, 16, 0.92);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--nle-panel-border);
+    position: relative;
+    z-index: 40;
+    flex-shrink: 0;
+}
+
+.nle-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--nle-accent), transparent);
+    opacity: 0.4;
+}
+
+.nle-logo-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nle-logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--nle-accent), var(--nle-accent-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: nle-logo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes nle-logo-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 16px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 28px rgba(99, 102, 241, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+}
+
+.nle-logo-text {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nle-logo-sub {
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--nle-accent);
+    opacity: 0.8;
+}
+
+/* Provider Pills */
+.nle-provider-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 1px;
+}
+
+.nle-provider-btn {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: all 0.2s var(--nle-transition);
+    color: rgba(255, 255, 255, 0.35);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.nle-provider-btn.active {
+    background: linear-gradient(135deg, var(--nle-accent), var(--nle-accent-2));
+    color: white;
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.5);
+}
+
+.nle-provider-btn:not(.active):hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Header Action Buttons */
+.nle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s var(--nle-transition);
+    white-space: nowrap;
+}
+
+.nle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.nle-btn-primary {
+    background: linear-gradient(135deg, var(--nle-accent), var(--nle-accent-2));
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+.nle-btn-primary:hover {
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+    transform: translateY(-2px);
+}
+
+.nle-btn-export {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    border-color: transparent;
+    color: white;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+    animation: nle-export-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes nle-export-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+    }
+
+    50% {
+        box-shadow: 0 4px 28px rgba(245, 158, 11, 0.65);
+    }
+}
+
+.nle-btn-export:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.6);
+}
+
+/* ============================================================
+   PANELS (Glass)
+   ============================================================ */
+.nle-panel {
+    background: var(--nle-panel);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    border-color: var(--nle-panel-border);
+}
+
+.nle-panel-collapse {
+    transition: width 0.35s var(--nle-transition), opacity 0.25s ease;
+    overflow: hidden;
+}
+
+/* Left panel media pool thumbnails */
+.nle-media-thumb {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: all 0.2s var(--nle-transition);
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+.nle-media-thumb:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.nle-media-thumb.selected {
+    border-color: var(--nle-accent);
+    box-shadow: 0 0 0 1px var(--nle-accent), 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+/* ============================================================
+   CANVAS / PREVIEW AREA
+   ============================================================ */
+.nle-canvas-wrapper {
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 8px 48px rgba(0, 0, 0, 0.9),
+        0 0 120px rgba(99, 102, 241, 0.08);
+    will-change: transform;
+    transform: translateZ(0);
+    /* Force GPU layer */
+}
+
+/* CRT scanline overlay — subtle film grain */
+.nle-canvas-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
+    pointer-events: none;
+    z-index: 20;
+    mix-blend-mode: multiply;
+}
+
+/* Vignette on canvas edges */
+.nle-canvas-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ============================================================
+   TRANSPORT CONTROLS
+   ============================================================ */
+.nle-transport {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+    height: 64px;
+    flex-shrink: 0;
+    background: rgba(8, 9, 16, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--nle-panel-border);
+    position: relative;
+}
+
+.nle-transport::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--nle-accent), transparent);
+    opacity: 0.5;
+}
+
+.nle-transport-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.15s var(--nle-transition);
+}
+
+.nle-transport-btn:hover {
+    color: white;
+    transform: scale(1.15);
+}
+
+.nle-play-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--nle-accent), var(--nle-accent-2));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s var(--nle-transition);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.nle-play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 32px rgba(99, 102, 241, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.nle-play-btn:active {
+    transform: scale(0.95);
+}
+
+.nle-timecode {
+    font-family: 'Space Grotesk', 'Courier New', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: white;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 120px;
+    text-align: center;
+    margin: 0 8px;
+}
+
+/* Scrub bar */
+.nle-scrub-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+}
+
+.nle-scrub-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--nle-accent), var(--nle-accent-2));
+    border-radius: 2px;
+    transition: width 0.08s linear;
+    pointer-events: none;
+}
+
+.nle-scrub-bar:hover .nle-scrub-fill {
+    filter: brightness(1.3);
+}
+
+/* ============================================================
+   TIMELINE
+   ============================================================ */
+.nle-timeline-area {
+    background: rgba(6, 7, 12, 0.98);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.nle-timeline-ruler {
+    height: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.nle-ruler-tick {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+}
+
+.nle-ruler-tick span {
+    font-size: 8px;
+    font-family: 'Space Grotesk', monospace;
+    color: rgba(255, 255, 255, 0.25);
+    margin-left: 2px;
+    white-space: nowrap;
+}
+
+.nle-timeline-clip {
+    position: absolute;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
+    -webkit-user-select: none;
+    user-select: none;
+    will-change: transform;
+    transition: filter 0.15s, box-shadow 0.15s;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nle-timeline-clip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.nle-timeline-clip:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+.nle-timeline-clip.selected {
+    outline: 2px solid white;
+    outline-offset: 1px;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.nle-timeline-clip-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.02em;
+}
+
+/* Clip type gradients */
+.nle-clip-video {
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.nle-clip-text {
+    background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.nle-clip-audio-vo {
+    background: linear-gradient(180deg, #059669 0%, #047857 100%);
+}
+
+.nle-clip-music {
+    background: linear-gradient(180deg, #6d28d9 0%, #5b21b6 100%);
+}
+
+.nle-clip-sfx {
+    background: linear-gradient(180deg, #b45309 0%, #92400e 100%);
+}
+
+.nle-clip-logo {
+    background: linear-gradient(180deg, #0f766e 0%, #0d6b63 100%);
+}
+
+/* Playhead */
+.nle-playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--nle-playhead);
+    pointer-events: none;
+    z-index: 60;
+    will-change: left;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+}
+
+.nle-playhead::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -7px;
+    width: 16px;
+    height: 16px;
+    background: var(--nle-playhead);
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+    border-radius: 2px;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+}
+
+/* Track header */
+.nle-track-header {
+    width: 140px;
+    min-width: 140px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(12, 14, 22, 0.98);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.nle-track-row {
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+    transition: background 0.15s;
+}
+
+.nle-track-row:hover {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+/* ============================================================
+   VIDEO: Smooth transitions with GPU compositing
+   ============================================================ */
+.nle-video-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   TEXT FX
+   ============================================================ */
+.text-fx-neon {
+    text-shadow:
+        0 0 8px currentColor,
+        0 0 20px currentColor,
+        0 0 45px currentColor,
+        0 0 80px currentColor;
+}
+
+.text-fx-cinematic {
+    text-shadow: 0 4px 32px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.18em;
+}
+
+.text-fx-outline {
+    -webkit-text-stroke: 2px currentColor;
+    color: transparent;
+    paint-order: stroke fill;
+}
+
+.text-fx-gradient {
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 40%, #fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-fx-gold {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 40%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 12px rgba(245, 158, 11, 0.5));
+}
+
+/* ============================================================
+   INSPECTOR PANEL
+   ============================================================ */
+.nle-inspector-section {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.nle-inspector-section-title {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 10px;
+}
+
+.nle-inspector-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: white;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+}
+
+.nle-inspector-input:focus {
+    border-color: var(--nle-accent);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.nle-slider {
+    width: 100%;
+    height: 3px;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    accent-color: var(--nle-accent);
+}
+
+.nle-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+}
+
+.nle-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+/* Color preset buttons */
+.nle-preset-btn {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.15s var(--nle-transition);
+}
+
+.nle-preset-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nle-preset-btn.active {
+    background: linear-gradient(135deg, var(--nle-accent), var(--nle-accent-2));
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+/* ============================================================
+   AUDIO CLASSIFICATION MODAL
+   ============================================================ */
+.nle-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    animation: nle-fade-in 0.2s ease;
+}
+
+.nle-modal {
+    background: rgba(14, 16, 26, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    width: 320px;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 32px 64px rgba(0, 0, 0, 0.8),
+        0 0 80px rgba(99, 102, 241, 0.15);
+    animation: nle-slide-up 0.25s var(--nle-transition);
+}
+
+@keyframes nle-fade-in {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes nle-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+/* ============================================================
+   GENERATION STATUS — Animated scanline progress
+   ============================================================ */
+.nle-progress-bar {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.nle-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--nle-accent), var(--nle-accent-2), var(--nle-gold));
+    background-size: 200% 100%;
+    animation: nle-progress-shimmer 1.5s linear infinite;
+    transition: width 0.5s var(--nle-transition);
+}
+
+@keyframes nle-progress-shimmer {
+    0% {
+        background-position: 200% center;
+    }
+
+    100% {
+        background-position: -200% center;
+    }
+}
+
+/* ============================================================
+   WAVEFORM PLACEHOLDER — Pure CSS oscillating bars
+   ============================================================ */
+.nle-waveform {
+    display: flex;
+    align-items: center;
+    gap: 1.5px;
+    height: 100%;
+    opacity: 0.6;
+    padding: 2px 4px;
+    overflow: hidden;
+}
+
+.nle-waveform-bar {
+    width: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 1px;
+    animation: nle-wave var(--d, 0.8s) ease-in-out infinite alternate;
+    flex-shrink: 0;
+}
+
+@keyframes nle-wave {
+    from {
+        height: 20%;
+    }
+
+    to {
+        height: 90%;
+    }
+}
+
+/* ============================================================
+   EXPORT OVERLAY
+   ============================================================ */
+.nle-export-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(20px);
+    animation: nle-fade-in 0.3s ease;
+}
+
+.nle-export-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(99, 102, 241, 0.2);
+    border-top-color: var(--nle-accent);
+    animation: nle-spin 1s linear infinite;
+    margin-bottom: 24px;
+}
+
+@keyframes nle-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   MISC UTILITIES
+   ============================================================ */
+.nle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.nle-badge-ready {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.nle-badge-gen {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.nle-badge-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.nle-badge-pending {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}

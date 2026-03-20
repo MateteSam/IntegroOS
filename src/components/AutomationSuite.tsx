@@ -135,15 +135,15 @@ const AutomationSuite = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-100 to-purple-100 rounded-full">
-          <Zap className="h-5 w-5 text-violet-600" />
-          <span className="text-violet-800 font-medium">NEXUS AUTOMATION SUITE</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-full dark:from-emerald-900/40 dark:to-blue-900/40">
+          <ShieldCheck className="h-5 w-5 text-emerald-600" />
+          <span className="text-emerald-800 dark:text-emerald-400 font-medium uppercase tracking-widest text-[10px]">Governance & Integration Hub</span>
         </div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-          Business Process Automation
+        <h1 className="text-4xl lg:text-5xl font-serif font-bold text-foreground">
+          System Orchestration & <span className="text-primary italic">Governance</span>
         </h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Automate your sales leads, invoicing, CRM, social media scheduling, and more with intelligent workflows.
+        <p className="text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+          Monitor agent impact, govern tool-stack integrations, and audit automated team cycles at enterprise scale.
         </p>
       </div>
 
@@ -250,7 +250,7 @@ const AutomationSuite = () => {
           {/* Recent Activity */}
           <Card className="bg-card/50 glass border-border/50">
             <CardHeader>
-              <CardTitle className="text-lg font-serif">Automation Operations Log</CardTitle>
+              <CardTitle className="text-lg font-serif">Sovereign Audit Trail</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

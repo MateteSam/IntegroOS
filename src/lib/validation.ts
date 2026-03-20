@@ -14,11 +14,11 @@ export const brandPromptSchema = z.object({
 });
 
 export const assetGenerationSchema = z.object({
-  prompt: z.string().min(10, "Prompt must be at least 10 characters").max(500, "Prompt too long"),
+  prompt: z.string().min(1, "Prompt is required").max(5000, "Prompt too long"),
   assetType: z.enum([
     'logo', 'business-card', 'letterhead', 'poster', 'flyer',
-    'social-ig', 'social-fb', 'social-twitter', 'social-linkedin', 
-    'social-pinterest', 'social-youtube', 'app-icon', 'email-sig', 
+    'social-ig', 'social-fb', 'social-twitter', 'social-linkedin',
+    'social-pinterest', 'social-youtube', 'app-icon', 'email-sig',
     'mockup', 'packaging', 'tshirt'
   ]),
   variationIndex: z.number().min(0).max(10).optional(),

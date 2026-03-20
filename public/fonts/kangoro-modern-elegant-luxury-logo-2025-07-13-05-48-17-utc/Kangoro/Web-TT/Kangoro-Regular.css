@@ -1,0 +1,12 @@
+/* Webfont: Kangoro-Regular */@font-face {
+    font-family: 'Kangoro';
+    src: url('Grogilia-Regular.eot'); /* IE9 Compat Modes */
+    src: url('Grogilia-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('Grogilia-Regular.woff') format('woff'), /* Modern Browsers */
+         url('Grogilia-Regular.woff2') format('woff2'), /* Modern Browsers */
+         url('Grogilia-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}
+
