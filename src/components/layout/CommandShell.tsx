@@ -116,12 +116,11 @@ export const CommandShell = () => {
     ];
 
     const projectTools = [
-        { id: 'book-architect', label: 'BookArchitect-AI', icon: Sparkles, path: '/os/book-studio', roles: ['Admin', 'Marketing'] },
-        { id: 'faith-nexus', label: 'Faith Nexus 2026', icon: Globe, path: '/os/faith-nexus', roles: ['Admin', 'Marketing'] },
-        { id: 'faith-standalone', label: 'Faith Standalone', icon: Rocket, path: '/os/faith-standalone', roles: ['Admin'] },
-        { id: 'studioworks-film', label: 'StudioWorks Film', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'web-templates', label: 'WebStudio', icon: LayoutTemplate, path: '/os/web-templates', roles: ['Admin', 'Marketing', 'Design'] },
         { id: 'integro-mail', label: 'IntegroMail™ Pro', icon: Mail, path: '/os/integro-mail', roles: ['Admin', 'Marketing'] },
-        { id: 'web-templates', label: 'Web Templates', icon: LayoutTemplate, path: '/os/web-templates', roles: ['Admin', 'Marketing', 'Design'] },
+        { id: 'studioworks-film', label: 'StudioWorks Film', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'onixone', label: 'ONIXone Studio', icon: Sparkles, path: '/os/book-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'faith-nexus', label: 'Faith Nexus 2026', icon: Globe, path: '/os/faith-nexus', roles: ['Admin', 'Marketing'] },
     ];
 
     return (
@@ -190,7 +189,7 @@ export const CommandShell = () => {
                     {/* Foundational Tools */}
                     <div className="space-y-4">
                         {!isCollapsed && (
-                            <h3 className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">Foundational Tools</h3>
+                            <h3 className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/50">Service Engine</h3>
                         )}
                         <div className="space-y-2">
                             {projectTools.filter(item => hasRole(item.roles)).map((tool) => (
