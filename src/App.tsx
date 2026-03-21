@@ -33,6 +33,8 @@ import IntegroMailContacts from "./pages/integro-mail/Contacts";
 import IntegroMailTemplates from "./pages/integro-mail/Templates";
 import IntegroMailLeads from "./pages/integro-mail/Leads";
 import IntegroMailSettings from "./pages/integro-mail/Settings";
+import WebTemplatesGallery from "./pages/WebTemplatesGallery";
+import TemplatePreview from "./pages/TemplatePreview";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProjectRegistryProvider } from "./contexts/ProjectRegistry";
 import { ProjectProvider } from "./contexts/ProjectContext";
@@ -41,7 +43,7 @@ import { RestrictedRoute } from "@/components/RestrictedRoute";
 
 // Professional Font Import
 const fontLink = document.createElement('link');
-fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&display=swap';
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap';
 fontLink.rel = 'stylesheet';
 document.head.appendChild(fontLink);
 
@@ -115,6 +117,8 @@ const App = () => {
                     <Route path="faith-standalone" element={<FaithNexusStandaloneView />} />
                     <Route path="launch-studio" element={<LaunchFilmStudio />} />
                     <Route path="projects" element={<ProjectDashboard />} />
+                    <Route path="web-templates" element={<WebTemplatesGallery />} />
+                    <Route path="web-templates/:templateId" element={<TemplatePreview />} />
                     
                     {/* ── IntegroMail Pro Engine ──────────────────────────── */}
                     <Route path="integro-mail" element={<RestrictedRoute allowedRoles={['Admin', 'Marketing']}><ErrorBoundary><IntegroMailDashboard /></ErrorBoundary></RestrictedRoute>} />

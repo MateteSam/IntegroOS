@@ -1,0 +1,1011 @@
+/* ═══════════════════════════════════════════════════════════════
+   WebTemplates Gallery — Per-Template Visual DNA
+   Each template preview has its own unique design language
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Base Template Card ─────────────────────────────────────── */
+.template-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.template-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  z-index: 10;
+}
+
+.template-card:hover .template-overlay {
+  opacity: 1;
+}
+
+.template-card:hover .template-actions {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.template-preview {
+  aspect-ratio: 16/10;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.template-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+  z-index: 5;
+}
+
+.template-actions {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Mini Preview Scenes ────────────────────────────────────── */
+/* Each .scene-* represents a UNIQUE design language */
+
+/* Dark Futuristic — Neon grid, cyber aesthetic */
+.scene-dark-futuristic {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+  position: relative;
+}
+.scene-dark-futuristic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, transparent 49%, rgba(0,255,200,0.03) 50%, transparent 51%) 0 0 / 40px 40px,
+    linear-gradient(0deg, transparent 49%, rgba(0,255,200,0.03) 50%, transparent 51%) 0 0 / 40px 40px;
+}
+.scene-dark-futuristic::after {
+  content: 'FUTURE FASHION REDEFINED';
+  position: absolute;
+  bottom: 20%;
+  left: 8%;
+  font-size: 1.4em;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 40px rgba(0,255,200,0.3);
+}
+
+/* Clean SaaS — White, minimal, corporate */
+.scene-clean-saas {
+  background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
+  position: relative;
+}
+.scene-clean-saas::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 5%;
+  width: 45%;
+  height: 60%;
+  background: linear-gradient(135deg, #e8e4ff 0%, #d4ccff 100%);
+  border-radius: 12px;
+  opacity: 0.6;
+}
+.scene-clean-saas::after {
+  content: 'Simple management for your team';
+  position: absolute;
+  top: 30%;
+  left: 8%;
+  width: 45%;
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1.2;
+}
+
+/* Cosmic Dark — Deep space, wormhole */
+.scene-cosmic-dark {
+  background: radial-gradient(ellipse at 60% 50%, #1a0a3e 0%, #0a0a1a 70%);
+  position: relative;
+}
+.scene-cosmic-dark::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 30%, rgba(100,50,255,0.3) 60%, transparent 70%);
+  box-shadow: 0 0 80px 40px rgba(100,50,255,0.15);
+  animation: cosmicPulse 4s ease-in-out infinite;
+}
+.scene-cosmic-dark::after {
+  content: 'AI at the Pace of Innovation';
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1em;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  width: 80%;
+}
+
+/* Neon Data — Purple glowing globe */
+.scene-neon-data {
+  background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 100%);
+  position: relative;
+}
+.scene-neon-data::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid rgba(150,100,255,0.4);
+  box-shadow: 0 0 30px rgba(150,100,255,0.3), inset 0 0 30px rgba(150,100,255,0.1);
+}
+.scene-neon-data::after {
+  content: 'Unlock the Power of Data';
+  position: absolute;
+  top: 30%;
+  left: 8%;
+  font-size: 1.2em;
+  font-weight: 800;
+  color: white;
+}
+
+/* Nature/Organic — Warm, scenic, editorial */
+.scene-organic {
+  background: linear-gradient(135deg, #2a3a2e 0%, #1a2a1e 100%);
+  position: relative;
+}
+.scene-organic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255,200,100,0.1) 0%, transparent 50%);
+}
+.scene-organic::after {
+  content: 'Agency that makes your content viral';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1em;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  width: 80%;
+}
+
+/* Luxury Gold — Premium black & gold */
+.scene-luxury-gold {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  position: relative;
+}
+.scene-luxury-gold::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(212,175,55,0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 40px rgba(212,175,55,0.15);
+}
+.scene-luxury-gold::after {
+  content: 'PREMIUM EXPERIENCE';
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #D4AF37;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Bold Gradient — Vivid colorful splash */
+.scene-bold-gradient {
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 25%, #48dbfb 50%, #ff9ff3 75%, #54a0ff 100%);
+  position: relative;
+}
+.scene-bold-gradient::after {
+  content: 'CREATE. INSPIRE. LAUNCH.';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.3em;
+  font-weight: 900;
+  color: white;
+  text-align: center;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  letter-spacing: 0.05em;
+}
+
+/* Warm Church — Stained glass warmth */
+.scene-warm-church {
+  background: linear-gradient(135deg, #1a0a2e 0%, #2e1a3e 50%, #3e1a2e 100%);
+  position: relative;
+}
+.scene-warm-church::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 80px;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(to bottom, rgba(255,200,100,0.3), rgba(255,150,50,0.1));
+  box-shadow: 0 0 40px rgba(255,200,100,0.2);
+}
+.scene-warm-church::after {
+  content: 'Walking in Faith Together';
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1em;
+  font-weight: 700;
+  color: rgba(255,220,150,0.9);
+  text-align: center;
+  width: 80%;
+  font-style: italic;
+}
+
+/* Brutalist — Raw, bold type, stark */
+.scene-brutalist {
+  background: #f5f0e8;
+  position: relative;
+}
+.scene-brutalist::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 8%;
+  width: 30%;
+  height: 60%;
+  background: #1a1a1a;
+}
+.scene-brutalist::after {
+  content: 'BOLD. RAW. REAL.';
+  position: absolute;
+  top: 25%;
+  right: 8%;
+  font-size: 1.5em;
+  font-weight: 900;
+  color: #1a1a1a;
+  text-align: right;
+  line-height: 1.1;
+}
+
+/* Glassmorphism — Frosted glass effect */
+.scene-glassmorphism {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+.scene-glassmorphism::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 15%;
+  width: 70%;
+  height: 55%;
+  background: rgba(255,255,255,0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.scene-glassmorphism::after {
+  content: 'Elevate Your Sound';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2em;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  z-index: 2;
+}
+
+/* Neon Cyber — Pink/cyan neon lines */
+.scene-neon-cyber {
+  background: #0a0a0a;
+  position: relative;
+}
+.scene-neon-cyber::before {
+  content: '';
+  position: absolute;
+  bottom: 30%;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ff00ff, #00ffff, transparent);
+  box-shadow: 0 0 10px rgba(255,0,255,0.5), 0 0 20px rgba(0,255,255,0.3);
+}
+.scene-neon-cyber::after {
+  content: 'NEXT GEN BEATS';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.4em;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 0 20px rgba(255,0,255,0.5), 0 0 40px rgba(0,255,255,0.3);
+  letter-spacing: 0.1em;
+}
+
+/* Pastel Soft — Light, friendly, education */
+.scene-pastel-soft {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
+  position: relative;
+}
+.scene-pastel-soft::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 10%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+}
+.scene-pastel-soft::after {
+  content: 'Learn Without Limits';
+  position: absolute;
+  top: 35%;
+  left: 10%;
+  font-size: 1.3em;
+  font-weight: 800;
+  color: #4a2c2a;
+  line-height: 1.2;
+}
+
+/* Emerald Finance — Dark green, trust */
+.scene-emerald-finance {
+  background: linear-gradient(135deg, #0a1a0a 0%, #0a2a1a 100%);
+  position: relative;
+}
+.scene-emerald-finance::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 15%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border: 2px solid rgba(16,185,129,0.4);
+  border-radius: 12px;
+  transform: translateY(-50%) rotate(45deg);
+}
+.scene-emerald-finance::after {
+  content: 'Your Money. Your Future.';
+  position: absolute;
+  top: 35%;
+  left: 8%;
+  font-size: 1.2em;
+  font-weight: 800;
+  color: #10b981;
+}
+
+/* Sunset Warm — Travel vibes */
+.scene-sunset-warm {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #fda085 100%);
+  position: relative;
+}
+.scene-sunset-warm::after {
+  content: 'Discover the World';
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.3em;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+/* Steel Industrial — Security/Transport */
+.scene-steel-industrial {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  position: relative;
+}
+.scene-steel-industrial::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px
+  );
+}
+.scene-steel-industrial::after {
+  content: 'PROTECTION REDEFINED';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1em;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.15em;
+}
+
+/* Podcast Dark — Waveform aesthetic */
+.scene-podcast-dark {
+  background: linear-gradient(135deg, #1a0a2e 0%, #0a0a1a 100%);
+  position: relative;
+}
+.scene-podcast-dark::before {
+  content: '';
+  position: absolute;
+  bottom: 40%;
+  left: 10%;
+  width: 80%;
+  height: 30px;
+  background: repeating-linear-gradient(
+    90deg, rgba(139,92,246,0.6) 0px, rgba(139,92,246,0.6) 3px, transparent 3px, transparent 7px
+  );
+  -webkit-mask-image: linear-gradient(to top, transparent, black, transparent);
+  mask-image: linear-gradient(to top, transparent, black, transparent);
+}
+.scene-podcast-dark::after {
+  content: 'YOUR VOICE. YOUR STORY.';
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1em;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+/* Event Glow — Party/event vibes */
+.scene-event-glow {
+  background: linear-gradient(135deg, #0a0a2e 0%, #2a0a2e 100%);
+  position: relative;
+}
+.scene-event-glow::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255,100,200,0.4) 0%, transparent 70%);
+  filter: blur(20px);
+}
+.scene-event-glow::after {
+  content: 'THE EXPERIENCE AWAITS';
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1em;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.1em;
+}
+
+/* MLM/Network — Geometric connections */
+.scene-network-geo {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  position: relative;
+}
+.scene-network-geo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(100,200,255,0.15) 0%, transparent 30%),
+    radial-gradient(circle at 70% 60%, rgba(200,100,255,0.15) 0%, transparent 30%),
+    radial-gradient(circle at 50% 80%, rgba(100,255,200,0.1) 0%, transparent 25%);
+}
+.scene-network-geo::after {
+  content: 'BUILD YOUR EMPIRE';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.3em;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 0.08em;
+}
+
+/* Product Showcase — Minimal with floating object */
+.scene-product-showcase {
+  background: linear-gradient(180deg, #fafafa 0%, #e8e8e8 100%);
+  position: relative;
+}
+.scene-product-showcase::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.scene-product-showcase::after {
+  content: 'DISCOVER. SHOP. LOVE.';
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.15em;
+}
+
+/* E-Commerce Vibrant — Online store */
+.scene-ecommerce-vibrant {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  position: relative;
+}
+.scene-ecommerce-vibrant::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 8%;
+  width: 35%;
+  height: 60%;
+  background: linear-gradient(135deg, rgba(255,100,100,0.2), rgba(255,200,100,0.2));
+  border-radius: 12px;
+}
+.scene-ecommerce-vibrant::after {
+  content: 'SHOP THE COLLECTION';
+  position: absolute;
+  top: 30%;
+  right: 8%;
+  font-size: 1.1em;
+  font-weight: 800;
+  color: white;
+  text-align: right;
+}
+
+/* Video Cinematic — Film strip aesthetic */
+.scene-video-cinematic {
+  background: #0a0a0a;
+  position: relative;
+}
+.scene-video-cinematic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 8%;
+  width: 6px;
+  background: repeating-linear-gradient(
+    to bottom, #333 0px, #333 8px, transparent 8px, transparent 16px
+  );
+}
+.scene-video-cinematic::after {
+  content: 'CINEMATIC VISION';
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  font-size: 1.3em;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 0.1em;
+}
+
+/* Book Launch — Editorial typography */
+.scene-book-editorial {
+  background: linear-gradient(135deg, #f5f0e0 0%, #e8dcc8 100%);
+  position: relative;
+}
+.scene-book-editorial::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 70px;
+  background: #2a2a2a;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+}
+.scene-book-editorial::after {
+  content: 'YOUR STORY BEGINS HERE';
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #2a2a2a;
+  letter-spacing: 0.15em;
+  text-align: center;
+  width: 80%;
+}
+
+/* Fashion Runway — High contrast editorial */
+.scene-fashion-runway {
+  background: #0a0a0a;
+  position: relative;
+}
+.scene-fashion-runway::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+}
+.scene-fashion-runway::after {
+  content: 'HAUTE COUTURE 2026';
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1em;
+  font-weight: 300;
+  color: white;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Transport Bold — Geometric motion */
+.scene-transport-bold {
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  position: relative;
+}
+.scene-transport-bold::before {
+  content: '';
+  position: absolute;
+  bottom: 30%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+.scene-transport-bold::after {
+  content: 'MOVING THE WORLD';
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2em;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.08em;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes cosmicPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Category Pills ─────────────────────────────────────────── */
+.category-pill {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+
+.category-pill:hover {
+  transform: translateY(-2px);
+}
+
+.category-pill.active {
+  background: linear-gradient(135deg, hsl(43 74% 49%), hsl(43 60% 40%));
+  color: #0a0a0a;
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+}
+
+/* ── Price Badge ────────────────────────────────────────────── */
+.price-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #10b981;
+  border: 1px solid rgba(16,185,129,0.2);
+  z-index: 4;
+}
+
+/* ── Template Info ──────────────────────────────────────────── */
+.template-info {
+  padding: 16px 4px;
+}
+
+.template-info h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.template-info .template-category-tag {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+
+/* ── Gallery Grid ───────────────────────────────────────────── */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 28px;
+}
+
+@media (max-width: 768px) {
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Hero Section ───────────────────────────────────────────── */
+.templates-hero {
+  position: relative;
+  padding: 60px 0 40px;
+  text-align: center;
+}
+
+.templates-hero::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Featured Badge ─────────────────────────────────────────── */
+.featured-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #D4AF37, #B38728);
+  color: #0a0a0a;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  z-index: 4;
+}
+
+/* ── Stat Counter ───────────────────────────────────────────── */
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(212,175,55,0.2);
+  background: rgba(212,175,55,0.03);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MINI WEBSITE PREVIEW — Makes each thumbnail look like a real site
+   ═══════════════════════════════════════════════════════════════ */
+
+.template-preview-wrapper {
+  aspect-ratio: 16/10;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.mini-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Mini Nav */
+.mini-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  flex-shrink: 0;
+}
+
+.mini-nav-logo {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.mini-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mini-nav-link {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.mini-nav-cta {
+  width: 28px;
+  height: 8px;
+  border-radius: 3px;
+  opacity: 0.8;
+}
+
+/* Mini Hero */
+.mini-hero {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.mini-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.5) saturate(1.2);
+}
+
+.mini-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.mini-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 65%;
+}
+
+.mini-hero-badge {
+  font-size: 5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.mini-hero-title {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.mini-hero-subtitle {
+  font-size: 5px;
+  line-height: 1.3;
+}
+
+.mini-hero-btns {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.mini-btn-primary {
+  width: 36px;
+  height: 8px;
+  border-radius: 3px;
+  opacity: 0.9;
+}
+
+.mini-btn-secondary {
+  width: 28px;
+  height: 8px;
+  border-radius: 3px;
+  border: 1px solid;
+  background: transparent;
+}
+
+/* Mini Sections */
+.mini-sections {
+  padding: 6px 10px 8px;
+  flex-shrink: 0;
+}
+
+.mini-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.mini-card {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mini-card-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.mini-card-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mini-card-lines span {
+  height: 2px;
+  border-radius: 1px;
+  display: block;
+}
