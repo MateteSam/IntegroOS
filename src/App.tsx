@@ -18,6 +18,7 @@ import FaithNexusMicrosite from "./pages/FaithNexusMicrosite";
 import SovereignLauncher from "./pages/SovereignLauncher";
 import BookArchitectStudio from "./pages/BookArchitectStudio";
 import LaunchFilmStudio from "./pages/LaunchFilmStudio";
+import MotionVideoHub from "./pages/MotionVideoHub";
 import { RevenueCommandCenter } from "@/components/RevenueCommandCenter";
 import { LeadPipeline } from "@/components/LeadPipeline";
 import { PlatformHealthMonitor } from "@/components/PlatformHealthMonitor";
@@ -115,7 +116,7 @@ const App = () => {
 
                     <Route path="faith-nexus" element={<FaithNexusDashboard />} />
                     <Route path="faith-standalone" element={<FaithNexusStandaloneView />} />
-                    <Route path="launch-studio" element={<LaunchFilmStudio />} />
+                    <Route path="launch-studio" element={<MotionVideoHub />} />
                     <Route path="projects" element={<ProjectDashboard />} />
                     <Route path="web-templates" element={<WebTemplatesGallery />} />
                     <Route path="web-templates/:templateId" element={<TemplatePreview />} />

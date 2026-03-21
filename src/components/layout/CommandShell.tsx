@@ -118,7 +118,7 @@ export const CommandShell = () => {
     const projectTools = [
         { id: 'web-templates', label: 'WebStudio', icon: LayoutTemplate, path: '/os/web-templates', roles: ['Admin', 'Marketing', 'Design'] },
         { id: 'integro-mail', label: 'IntegroMail™ Pro', icon: Mail, path: '/os/integro-mail', roles: ['Admin', 'Marketing'] },
-        { id: 'studioworks-film', label: 'StudioWorks Film', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
+        { id: 'studioworks-film', label: 'Motion & Video', icon: Film, path: '/os/launch-studio', roles: ['Admin', 'Marketing'] },
         { id: 'onixone', label: 'ONIXone Studio', icon: Sparkles, path: '/os/book-studio', roles: ['Admin', 'Marketing'] },
         { id: 'faith-nexus', label: 'Faith Nexus 2026', icon: Globe, path: '/os/faith-nexus', roles: ['Admin', 'Marketing'] },
     ];
