@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { AnimatePresence, motion } from 'framer-motion';
+import MotionLab from './MotionLab';
 import './MotionVideoHub.css';
 
 // ═══════════════════════════════════════════════════════════
@@ -691,4 +693,65 @@ const ProEditor: React.FC = () => {
   );
 };
 
-export default ProEditor;
+// ═══════════════════════════════════════════════════════════
+// HUB WRAPPER — Film Production + Motion Lab
+// ═══════════════════════════════════════════════════════════
+type HubMode = 'film' | 'motion';
+
+const MODES = [
+  { id: 'film' as const, label: 'Film Production', icon: Film },
+  { id: 'motion' as const, label: 'Motion Lab', icon: Zap },
+];
+
+const MotionVideoHub: React.FC = () => {
+  const [mode, setMode] = useState<HubMode>('film');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 5rem)', margin: '-1.5rem' }}>
+      {/* Mode Switcher */}
+      <div style={{ height: 44, background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', padding: '0 1rem', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 16 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(6,182,212,0.2)' }}>
+            <MonitorPlay size={14} className="text-cyan-400" />
+          </div>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'white' }}>Motion & Video</span>
+          <span style={{ fontSize: '0.5625rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>Command Center</span>
+        </div>
+        <div style={{ flex: 1 }} />
+        <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.04)', padding: 3, borderRadius: 10 }}>
+          {MODES.map(m => (
+            <button key={m.id} onClick={() => setMode(m.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8,
+                border: 'none', fontSize: '0.5625rem', fontWeight: 700, textTransform: 'uppercase',
+                letterSpacing: '0.12em', cursor: 'pointer', transition: 'all 0.2s',
+                background: mode === m.id ? 'linear-gradient(135deg, rgba(6,182,212,0.7), rgba(168,85,247,0.7))' : 'transparent',
+                color: mode === m.id ? 'white' : 'rgba(255,255,255,0.35)',
+                boxShadow: mode === m.id ? '0 2px 12px rgba(6,182,212,0.25)' : 'none',
+              }}>
+              <m.icon size={14} />
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <AnimatePresence mode="wait">
+          {mode === 'film' ? (
+            <motion.div key="film" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ height: '100%' }}>
+              <ProEditor />
+            </motion.div>
+          ) : (
+            <motion.div key="motion" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ height: '100%' }}>
+              <MotionLab />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default MotionVideoHub;
